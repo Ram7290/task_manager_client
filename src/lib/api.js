@@ -1,0 +1,97 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    const message = error.response?.data?.message || error.message || 'An error occurred';
+    return Promise.reject(new Error(message));
+  }
+);
+
+export const authApi = {
+  login: (credentials) => api.post('/auth/login', credentials),
+  getMe: () => api.get('/auth/me'),
+  logout: () => api.post('/auth/logout'),
+};
+
+export const taskApi = {
+  list: (params) => api.get('/tasks', { params }),
+  myTasks: (params) => api.get('/tasks/my-tasks', { params }),
+  getById: (id) => api.get(`/tasks/${id}`),
+  create: (data) => api.post('/tasks', data),
+  update: (id, data) => api.patch(`/tasks/${id}`, data),
+  updateStatus: (assigneeId, status, note) =>
+    api.patch(`/tasks/assignments/${assigneeId}/status`, { status, note }),
+  addAssignees: (id, employee_ids) => api.post(`/tasks/${id}/assignees`, { employee_ids }),
+  removeAssignee: (id, assigneeId) => api.delete(`/tasks/${id}/assignees/${assigneeId}`),
+  addComment: (id, comment, task_assignee_id) =>
+    api.post(`/tasks/${id}/comments`, { comment, task_assignee_id }),
+};
+
+export const worklogApi = {
+  getCategories: () => api.get('/worklogs/categories'),
+  getTodayDraft: () => api.get('/worklogs/today'),
+  getMyReports: (params) => api.get('/worklogs/my-reports', { params }),
+  getReportById: (id) => api.get(`/worklogs/reports/${id}`),
+  addEntry: (reportId, data) => api.post(`/worklogs/reports/${reportId}/entries`, data),
+  updateEntry: (entryId, data) => api.patch(`/worklogs/entries/${entryId}`, data),
+  deleteEntry: (entryId) => api.delete(`/worklogs/entries/${entryId}`),
+  submitReport: (reportId) => api.post(`/worklogs/reports/${reportId}/submit`),
+};
+
+export const managerApi = {
+  getTeam: () => api.get('/manager/team'),
+  getDashboard: () => api.get('/manager/dashboard'),
+  getSubmittedWorklogs: (params) => api.get('/manager/worklogs', { params }),
+  getSubmittedReportById: (id) => api.get(`/manager/worklogs/${id}`),
+};
+
+export const adminApi = {
+  getDashboard: () => api.get('/admin/dashboard'),
+  getWorklogs: (params) => api.get('/admin/worklogs', { params }),
+  correctReport: (reportId, data) => api.post(`/admin/worklogs/${reportId}/corrections`, data),
+  getAuditLogs: (params) => api.get('/admin/audit-logs', { params }),
+  getUsers: (params) => api.get('/users', { params }),
+  createUser: (data) => api.post('/users', data),
+  updateUser: (id, data) => api.patch(`/users/${id}`, data),
+  toggleUserStatus: (id) => api.patch(`/users/${id}/status`),
+  setManagerTeam: (managerId, employee_ids) =>
+    api.post(`/users/${managerId}/team`, { employee_ids }),
+  getDepartments: () => api.get('/departments'),
+  createDepartment: (data) => api.post('/departments', data),
+};
+
+export const projectApi = {
+  list: () => api.get('/projects'),
+  getById: (id) => api.get(`/projects/${id}`),
+  create: (data) => api.post('/projects', data),
+  update: (id, data) => api.patch(`/projects/${id}`, data),
+  addMember: (id, employee_id) => api.post(`/projects/${id}/members`, { employee_id }),
+  removeMember: (id, employeeId) => api.delete(`/projects/${id}/members/${employeeId}`),
+};
+
+export default api;
