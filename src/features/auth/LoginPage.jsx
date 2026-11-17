@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, Mail, CheckCircle, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, CheckCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -38,12 +38,12 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Header Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-500/20 mb-4">
-            <ShieldCheck className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center rounded-2xl bg-white p-3 shadow-xl shadow-blue-500/20 mb-4">
+            <img src="/taiqon-logo.png" alt="Taiqon Technologies" className="h-16 w-auto" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Worklog Pro</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Taiqon Technologies Pvt Ltd</h1>
           <p className="text-slate-400 text-sm mt-1">
-            Employee Task Assignment & Daily Worklog System
+            Worklog Pro · Employee Task Assignment & Daily Worklog System
           </p>
         </div>
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-slate-500 mt-6">
-          Compliant with company internal security & privacy policies.
+          © {new Date().getFullYear()} Taiqon Technologies Pvt Ltd. For internal use only.
         </p>
       </div>
     </div>

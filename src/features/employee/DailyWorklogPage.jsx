@@ -13,6 +13,8 @@ import {
   FileText,
   AlertTriangle,
   Briefcase,
+  Pencil,
+  X,
 } from 'lucide-react';
 
 export default function DailyWorklogPage() {
@@ -29,6 +31,7 @@ export default function DailyWorklogPage() {
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(60); // Default 60 mins
+  const [editingEntryId, setEditingEntryId] = useState(null);
 
   // Modals & submission state
   const [submitting, setSubmitting] = useState(false);
@@ -73,7 +76,30 @@ export default function DailyWorklogPage() {
     setDurationMinutes((prev) => (prev > 30 ? prev - 30 : 30));
   };
 
-  const handleAddEntry = async (e) => {
+  const resetForm = () => {
+    setEditingEntryId(null);
+    setEntryType('TASK');
+    setDescription('');
+    setDurationMinutes(60);
+    setSelectedTaskId('');
+    setSelectedProjectId('');
+    setSelectedCategoryId(categories[0]?.id || '');
+    setFormError('');
+  };
+
+  const handleEditEntry = (entry) => {
+    setEditingEntryId(entry.id);
+    setEntryType(entry.task_id ? 'TASK' : 'UNPLANNED');
+    setSelectedTaskId(entry.task_id || '');
+    setSelectedCategoryId(entry.category_id || '');
+    setSelectedProjectId(entry.project_id || '');
+    setDescription(entry.description || '');
+    setDurationMinutes(entry.duration_minutes);
+    setFormError('');
+    document.getElementById('worklog-entry-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleSaveEntry = async (e) => {
     e.preventDefault();
     setFormError('');
 
@@ -96,18 +122,18 @@ export default function DailyWorklogPage() {
         project_id: selectedProjectId || null,
       };
 
-      await worklogApi.addEntry(report.id, payload);
+      if (editingEntryId) {
+        await worklogApi.updateEntry(editingEntryId, payload);
+      } else {
+        await worklogApi.addEntry(report.id, payload);
+      }
 
-      // Reset form
-      setDescription('');
-      setDurationMinutes(60);
-      setSelectedTaskId('');
+      resetForm();
 
-      // Refresh report
       const updated = await worklogApi.getReportById(report.id);
       setReport(updated.data);
     } catch (err) {
-      setFormError(err.message || 'Failed to add worklog entry');
+      setFormError(err.message || 'Failed to save worklog entry');
     }
   };
 
@@ -204,10 +230,14 @@ export default function DailyWorklogPage() {
 
       {/* Entry Addition Card (Active only while DRAFT) */}
       {!isSubmitted && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+        <div id="worklog-entry-form" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-blue-600" /> Add Worklog Entry
+              {editingEntryId ? (
+                <><Pencil className="w-4 h-4 text-blue-600" /> Edit Worklog Entry</>
+              ) : (
+                <><Plus className="w-4 h-4 text-blue-600" /> Add Worklog Entry</>
+              )}
             </h2>
 
             {/* Entry Type Toggle */}
@@ -243,7 +273,7 @@ export default function DailyWorklogPage() {
             </div>
           )}
 
-          <form onSubmit={handleAddEntry} className="space-y-4">
+          <form onSubmit={handleSaveEntry} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Task Selector if Assigned Task */}
               {entryType === 'TASK' ? (
@@ -361,13 +391,25 @@ export default function DailyWorklogPage() {
                 </span>
               </div>
 
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add to Daily Draft
-              </button>
+              <div className="flex items-center gap-2">
+                {editingEntryId && (
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center justify-center gap-2"
+                >
+                  {editingEntryId ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  {editingEntryId ? 'Save Changes' : 'Add to Daily Draft'}
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -402,7 +444,9 @@ export default function DailyWorklogPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {report.worklogs.map((entry) => (
+            {[...report.worklogs]
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((entry) => (
               <div key={entry.id} className="py-4 flex items-start justify-between gap-4">
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -429,6 +473,15 @@ export default function DailyWorklogPage() {
                   <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800">
                     {formatMinutes(entry.duration_minutes)}
                   </span>
+                  {!isSubmitted && (
+                    <button
+                      onClick={() => handleEditEntry(entry)}
+                      className="p-1 text-slate-400 hover:text-blue-600 transition"
+                      title="Edit entry"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  )}
                   {!isSubmitted && (
                     <button
                       onClick={() => handleDeleteEntry(entry.id)}
