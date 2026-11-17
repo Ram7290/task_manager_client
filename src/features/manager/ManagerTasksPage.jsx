@@ -358,7 +358,7 @@ export default function ManagerTasksPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                     Project (Optional)
@@ -394,7 +394,7 @@ export default function ManagerTasksPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                     Start Date
@@ -448,7 +448,7 @@ export default function ManagerTasksPage() {
                       : 'No employees currently in your scope. Ask an admin to map team members.'}
                   </p>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2 border border-slate-200 rounded-xl p-3 bg-slate-50 max-h-36 overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-slate-200 rounded-xl p-3 bg-slate-50 max-h-36 overflow-y-auto">
                     {assignableEmployees.map((emp) => {
                       const isSelected = formData.assignee_ids.includes(emp.id);
                       return (

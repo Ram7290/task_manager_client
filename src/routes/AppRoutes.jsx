@@ -26,6 +26,7 @@ import AdminAuditLogsPage from '../features/admin/AdminAuditLogsPage';
 import AdminSubmissionTimelinePage from '../features/admin/AdminSubmissionTimelinePage';
 import AdminUserOverviewPage from '../features/admin/AdminUserOverviewPage';
 import AdminAttendancePage from '../features/admin/AdminAttendancePage';
+import AdminCategoriesPage from '../features/admin/AdminCategoriesPage';
 
 function ProtectedRoute({ allowedRoles, children }) {
   const { user, loading } = useAuth();
@@ -189,6 +190,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
               <AdminAttendancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/categories"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminCategoriesPage />
             </ProtectedRoute>
           }
         />

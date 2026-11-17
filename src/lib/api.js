@@ -59,7 +59,9 @@ export const taskApi = {
 };
 
 export const worklogApi = {
-  getCategories: () => api.get('/worklogs/categories'),
+  getCategories: (params) => api.get('/worklogs/categories', { params }),
+  createCategory: (data) => api.post('/worklogs/categories', data),
+  updateCategory: (id, data) => api.patch(`/worklogs/categories/${id}`, data),
   getTodayDraft: () => api.get('/worklogs/today'),
   getMyReports: (params) => api.get('/worklogs/my-reports', { params }),
   getReportById: (id) => api.get(`/worklogs/reports/${id}`),

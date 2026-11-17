@@ -40,6 +40,7 @@ export default function AdminAuditLogsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider bg-slate-50">
@@ -79,6 +80,7 @@ export default function AdminAuditLogsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

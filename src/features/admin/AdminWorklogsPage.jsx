@@ -434,7 +434,7 @@ export default function AdminWorklogsPage() {
                 <div className="space-y-3">
                   {correctionEntries.map((entry, idx) => (
                     <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <select
                           value={entry.category_id}
                           onChange={(e) => updateEntryField(idx, 'category_id', e.target.value)}

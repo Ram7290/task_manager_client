@@ -195,6 +195,7 @@ export default function AdminUsersPage() {
 
       {/* Users Table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider bg-slate-50">
@@ -271,6 +272,7 @@ export default function AdminUsersPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Create User Modal */}
@@ -279,7 +281,7 @@ export default function AdminUsersPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
             <h2 className="text-base font-bold text-slate-900 mb-4">Create New User</h2>
             <form onSubmit={handleCreateUser} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                     First Name
@@ -332,7 +334,7 @@ export default function AdminUsersPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                     Role

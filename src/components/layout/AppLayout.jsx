@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -13,11 +13,14 @@ import {
   Building2,
   Calendar,
   KeyRound,
+  Menu,
+  Tags,
 } from 'lucide-react';
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -37,8 +40,20 @@ export default function AppLayout() {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800">
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 transform transition-transform duration-200 lg:static lg:translate-x-0 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
             W
@@ -67,7 +82,10 @@ export default function AppLayout() {
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        <nav
+          className="flex-1 px-3 py-2 space-y-1 overflow-y-auto"
+          onClick={() => setMobileOpen(false)}
+        >
           {/* Employee Navigation */}
           {user?.role === 'EMPLOYEE' && (
             <>
@@ -237,6 +255,19 @@ export default function AppLayout() {
                 Departments & Projects
               </NavLink>
               <NavLink
+                to="/admin/categories"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`
+                }
+              >
+                <Tags className="w-4 h-4" />
+                Worklog Categories
+              </NavLink>
+              <NavLink
                 to="/admin/worklogs"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
@@ -318,14 +349,27 @@ export default function AppLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        {/* Mobile top bar */}
+        <div className="lg:hidden h-14 flex items-center gap-3 px-4 bg-slate-900 text-white flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-800"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <span className="font-semibold text-sm">Worklog Pro</span>
+        </div>
+
         {/* Top Header */}
-        <header className="h-14 border-b border-slate-200 bg-white px-8 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+        <header className="hidden sm:flex h-14 border-b border-slate-200 bg-white px-4 md:px-8 items-center justify-between gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
               {user?.department?.name || 'Company Internal'}
             </span>
-            <span className="text-xs text-slate-400">
+            <span className="hidden md:inline text-xs text-slate-400 whitespace-nowrap">
               Session active:{' '}
               {new Date().toLocaleDateString(undefined, {
                 weekday: 'short',
@@ -336,14 +380,14 @@ export default function AppLayout() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500">Signed in as:</span>
-            <span className="text-xs font-semibold text-slate-800">{user?.email}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="hidden md:inline text-xs text-slate-500">Signed in as:</span>
+            <span className="text-xs font-semibold text-slate-800 truncate">{user?.email}</span>
           </div>
         </header>
 
         {/* View body */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           <Outlet />
         </div>
       </main>

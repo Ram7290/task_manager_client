@@ -289,7 +289,7 @@ export default function AdminAttendancePage() {
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <table className="w-full text-xs">
+              <div className="overflow-x-auto"><table className="w-full text-xs">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className="py-3 px-4 text-left font-bold text-slate-500 uppercase tracking-wider">Date</th>
@@ -332,7 +332,7 @@ export default function AdminAttendancePage() {
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           )}
 
@@ -445,7 +445,7 @@ export default function AdminAttendancePage() {
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <table className="w-full text-xs">
+              <div className="overflow-x-auto"><table className="w-full text-xs">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className="py-3 px-4 text-left font-bold text-slate-500 uppercase tracking-wider">Employee</th>
@@ -490,7 +490,7 @@ export default function AdminAttendancePage() {
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           )}
 
