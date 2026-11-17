@@ -80,12 +80,9 @@ export default function DailyWorklogPage() {
 
   const resetForm = () => {
     setEditingEntryId(null);
-    setEntryType('TASK');
     setDescription('');
     setDurationMinutes(60);
     setSelectedTaskId('');
-    setSelectedProjectId('');
-    setSelectedCategoryId(categories[0]?.id || '');
     setFormError('');
   };
 
