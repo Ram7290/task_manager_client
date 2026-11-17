@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { localDateStr } from './utils';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
@@ -14,6 +15,10 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Tell the server what date it is in the browser's local timezone.
+  // The server uses this for "today's worklog" so IST and GST users get
+  // the correct calendar date even when UTC has already rolled over.
+  config.headers['X-Client-Date'] = localDateStr();
   return config;
 });
 
@@ -71,7 +76,9 @@ export const managerApi = {
 };
 
 export const adminApi = {
-  getDashboard: () => api.get('/admin/dashboard'),
+  getDashboard: (params) => api.get('/admin/dashboard', { params }),
+  getSubmissionTimeline: (params) => api.get('/admin/submission-timeline', { params }),
+  getUserOverview: (userId) => api.get(`/admin/users/${userId}/overview`),
   getWorklogs: (params) => api.get('/admin/worklogs', { params }),
   correctReport: (reportId, data) => api.post(`/admin/worklogs/${reportId}/corrections`, data),
   getAuditLogs: (params) => api.get('/admin/audit-logs', { params }),
@@ -92,6 +99,18 @@ export const projectApi = {
   update: (id, data) => api.patch(`/projects/${id}`, data),
   addMember: (id, employee_id) => api.post(`/projects/${id}/members`, { employee_id }),
   removeMember: (id, employeeId) => api.delete(`/projects/${id}/members/${employeeId}`),
+};
+
+export const attendanceApi = {
+  // Company off days
+  getOffDays: (params) => api.get('/attendance/off-days', { params }),
+  addOffDay: (data) => api.post('/attendance/off-days', data),
+  bulkAddOffDays: (entries) => api.post('/attendance/off-days/bulk', { entries }),
+  removeOffDay: (id) => api.delete(`/attendance/off-days/${id}`),
+  // Attendance exceptions
+  getExceptions: (params) => api.get('/attendance/exceptions', { params }),
+  markException: (data) => api.post('/attendance/exceptions', data),
+  removeException: (id) => api.delete(`/attendance/exceptions/${id}`),
 };
 
 export default api;

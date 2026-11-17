@@ -14,6 +14,7 @@ import SubmittedReportsPage from '../features/employee/SubmittedReportsPage';
 import ManagerDashboardPage from '../features/manager/ManagerDashboardPage';
 import ManagerTasksPage from '../features/manager/ManagerTasksPage';
 import ManagerWorklogsPage from '../features/manager/ManagerWorklogsPage';
+import ManagerDailyWorklogPage from '../features/manager/ManagerDailyWorklogPage';
 
 // Admin
 import AdminDashboardPage from '../features/admin/AdminDashboardPage';
@@ -21,6 +22,9 @@ import AdminUsersPage from '../features/admin/AdminUsersPage';
 import AdminDepartmentsProjectsPage from '../features/admin/AdminDepartmentsProjectsPage';
 import AdminWorklogsPage from '../features/admin/AdminWorklogsPage';
 import AdminAuditLogsPage from '../features/admin/AdminAuditLogsPage';
+import AdminSubmissionTimelinePage from '../features/admin/AdminSubmissionTimelinePage';
+import AdminUserOverviewPage from '../features/admin/AdminUserOverviewPage';
+import AdminAttendancePage from '../features/admin/AdminAttendancePage';
 
 function ProtectedRoute({ allowedRoles, children }) {
   const { user, loading } = useAuth();
@@ -111,6 +115,14 @@ export default function AppRoutes() {
           }
         />
         <Route
+          path="manager/worklog"
+          element={
+            <ProtectedRoute allowedRoles={['MANAGER']}>
+              <ManagerDailyWorklogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="manager/worklogs"
           element={
             <ProtectedRoute allowedRoles={['MANAGER']}>
@@ -157,6 +169,30 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
               <AdminWorklogsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/submission-timeline"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminSubmissionTimelinePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/attendance"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminAttendancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/users/:userId/overview"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminUserOverviewPage />
             </ProtectedRoute>
           }
         />

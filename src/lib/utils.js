@@ -17,3 +17,18 @@ export function formatMinutes(mins) {
   }
   return `${remainingMinutes}m`;
 }
+
+// Returns today's date as YYYY-MM-DD in the browser's local timezone.
+// Never use new Date().toISOString().split('T')[0] — that gives UTC date,
+// which is one day behind for timezones east of UTC (IST, GST, etc.).
+export function localDateStr(date) {
+  const d = date || new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// Offset today by N days (negative = past, positive = future), returns YYYY-MM-DD local.
+export function localDateOffset(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return localDateStr(d);
+}

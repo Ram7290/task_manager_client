@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
-import { Users, Plus, Shield, CheckCircle, XCircle, Search, Edit2 } from 'lucide-react';
+import { Users, Plus, CheckCircle, Search } from 'lucide-react';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -200,6 +201,12 @@ export default function AdminUsersPage() {
                   </span>
                 </td>
                 <td className="py-3 px-4 text-right space-x-2">
+                  <Link
+                    to={`/admin/users/${user.id}/overview`}
+                    className="inline-block px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-semibold"
+                  >
+                    View Profile
+                  </Link>
                   {user.role === 'MANAGER' && (
                     <button
                       onClick={() => openTeamMapping(user)}

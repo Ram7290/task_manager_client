@@ -148,6 +148,19 @@ export default function AppLayout() {
                 Assign & Track Tasks
               </NavLink>
               <NavLink
+                to="/manager/worklog"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`
+                }
+              >
+                <Clock className="w-4 h-4" />
+                My Daily Worklog
+              </NavLink>
+              <NavLink
                 to="/manager/worklogs"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
@@ -158,7 +171,7 @@ export default function AppLayout() {
                 }
               >
                 <FileText className="w-4 h-4" />
-                Submitted Worklogs
+                Team Worklogs
               </NavLink>
             </>
           )}
@@ -208,6 +221,7 @@ export default function AppLayout() {
                 <Users className="w-4 h-4" />
                 Users & Team Scope
               </NavLink>
+              {/* /admin/users/:userId/overview is reached from Users page — no separate nav entry needed */}
               <NavLink
                 to="/admin/departments"
                 className={({ isActive }) =>
@@ -233,6 +247,32 @@ export default function AppLayout() {
               >
                 <FileText className="w-4 h-4" />
                 All Submitted Reports
+              </NavLink>
+              <NavLink
+                to="/admin/submission-timeline"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`
+                }
+              >
+                <Calendar className="w-4 h-4" />
+                Submission Timeline
+              </NavLink>
+              <NavLink
+                to="/admin/attendance"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`
+                }
+              >
+                <Clock className="w-4 h-4" />
+                Attendance & Off Days
               </NavLink>
               <NavLink
                 to="/admin/audit-logs"

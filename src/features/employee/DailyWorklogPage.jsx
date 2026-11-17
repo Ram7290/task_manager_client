@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { worklogApi, taskApi, projectApi } from '../../lib/api';
-import { formatMinutes } from '../../lib/utils';
+import { formatMinutes, localDateStr } from '../../lib/utils';
 import {
   Clock,
   Plus,

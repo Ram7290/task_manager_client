@@ -1,22 +1,37 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApi, worklogApi } from '../../lib/api';
 import { formatMinutes } from '../../lib/utils';
 import {
   FileText,
-  Calendar,
-  Clock,
   ShieldAlert,
-  AlertCircle,
   Edit3,
-  CheckCircle,
-  Plus,
-  Trash2,
+  Filter,
+  X,
 } from 'lucide-react';
 
+const EMPTY_FILTERS = {
+  employee_id: '',
+  department_id: '',
+  start_date: '',
+  end_date: '',
+  status: 'SUBMITTED',
+};
+
 export default function AdminWorklogsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialEmployeeId = searchParams.get('employee_id') || '';
+
   const [reports, setReports] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({ ...EMPTY_FILTERS, employee_id: initialEmployeeId });
+  const [appliedFilters, setAppliedFilters] = useState({
+    ...EMPTY_FILTERS,
+    employee_id: initialEmployeeId,
+  });
 
   // Controlled Correction Modal
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
@@ -25,15 +40,33 @@ export default function AdminWorklogsPage() {
   const [correctionEntries, setCorrectionEntries] = useState([]);
   const [applyingCorrection, setApplyingCorrection] = useState(false);
 
-  const loadData = async () => {
+  const loadReferenceData = async () => {
     try {
-      setLoading(true);
-      const [reportsRes, catsRes] = await Promise.all([
-        adminApi.getWorklogs(),
+      const [empRes, deptRes, catsRes] = await Promise.all([
+        adminApi.getUsers({ role: 'EMPLOYEE', is_active: true }),
+        adminApi.getDepartments(),
         worklogApi.getCategories(),
       ]);
-      setReports(reportsRes.data);
+      setEmployees(empRes.data);
+      setDepartments(deptRes.data);
       setCategories(catsRes.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const loadData = async (activeFilters = appliedFilters) => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (activeFilters.employee_id) params.employee_id = activeFilters.employee_id;
+      if (activeFilters.department_id) params.department_id = activeFilters.department_id;
+      if (activeFilters.start_date) params.start_date = activeFilters.start_date;
+      if (activeFilters.end_date) params.end_date = activeFilters.end_date;
+      if (activeFilters.status) params.status = activeFilters.status;
+
+      const reportsRes = await adminApi.getWorklogs(params);
+      setReports(reportsRes.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,8 +75,35 @@ export default function AdminWorklogsPage() {
   };
 
   useEffect(() => {
-    loadData();
+    (async () => {
+      await loadReferenceData();
+      // initial load uses appliedFilters (which may carry an employee_id from the URL)
+      await loadData();
+      // clear the consumed URL param so subsequent resets behave normally
+      if (searchParams.get('employee_id')) {
+        setSearchParams({}, { replace: true });
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    loadData(filters);
+  };
+
+  const handleClearFilters = () => {
+    setFilters(EMPTY_FILTERS);
+    setAppliedFilters(EMPTY_FILTERS);
+    loadData(EMPTY_FILTERS);
+  };
+
+  const hasActiveFilters =
+    appliedFilters.employee_id ||
+    appliedFilters.department_id ||
+    appliedFilters.start_date ||
+    appliedFilters.end_date ||
+    appliedFilters.status !== 'SUBMITTED';
 
   const openCorrection = (report) => {
     setTargetReport(report);
@@ -99,12 +159,127 @@ export default function AdminWorklogsPage() {
         </p>
       </div>
 
+      {/* Filter Bar */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div className="flex items-center gap-2 text-slate-500">
+          <Filter className="w-4 h-4" />
+          <span className="text-xs font-bold uppercase tracking-wider">Filter Submitted Records</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* Instructor / Employee */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              Instructor
+            </label>
+            <select
+              value={filters.employee_id}
+              onChange={(e) => setFilters({ ...filters, employee_id: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Instructors</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.first_name} {emp.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Department */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              Department
+            </label>
+            <select
+              value={filters.department_id}
+              onChange={(e) => setFilters({ ...filters, department_id: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Start Date */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              From Date
+            </label>
+            <input
+              type="date"
+              value={filters.start_date}
+              onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* End Date */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              To Date
+            </label>
+            <input
+              type="date"
+              value={filters.end_date}
+              onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              Status
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="SUBMITTED">Submitted</option>
+              <option value="DRAFT">Draft</option>
+              <option value="ALL">All</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-xs text-slate-400">
+            {loading ? 'Loading…' : `${reports.length} report${reports.length === 1 ? '' : 's'} found`}
+            {hasActiveFilters ? ' (filtered)' : ''}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleClearFilters}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition flex items-center gap-1.5"
+            >
+              <X className="w-3.5 h-3.5" />
+              Clear
+            </button>
+            <button
+              onClick={handleApplyFilters}
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
+            >
+              <Filter className="w-3.5 h-3.5" />
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
         <div className="py-12 text-center text-slate-400">Loading company worklogs...</div>
       ) : reports.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">No submitted reports found</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Try adjusting the filters to widen your search.
+          </p>
         </div>
       ) : (
         <div className="space-y-4">

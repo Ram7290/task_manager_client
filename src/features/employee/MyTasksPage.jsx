@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { taskApi } from '../../lib/api';
-import { formatMinutes } from '../../lib/utils';
+import { formatMinutes, localDateStr } from '../../lib/utils';
 import {
   CheckCircle2,
   Clock,
@@ -72,7 +72,7 @@ export default function MyTasksPage() {
   const filteredTasks = tasks.filter((item) => {
     if (statusFilter === 'ALL') return true;
     if (statusFilter === 'OVERDUE') {
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateStr();
       return (
         item.assignment_status !== 'COMPLETED' &&
         item.task.due_date &&
@@ -153,7 +153,7 @@ export default function MyTasksPage() {
             const isOverdue =
               item.assignment_status !== 'COMPLETED' &&
               task.due_date &&
-              task.due_date < new Date().toISOString().split('T')[0];
+              task.due_date < localToday();
 
             return (
               <div

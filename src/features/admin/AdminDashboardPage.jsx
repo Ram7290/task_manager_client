@@ -1,39 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
+import { formatMinutes, localDateStr, localDateOffset } from '../../lib/utils';
 import {
   Users,
   FolderKanban,
   CheckSquare,
-  Clock,
   Building2,
-  TrendingUp,
   FileCheck,
   Plus,
+  AlertTriangle,
+  CheckCircle2,
+  CalendarDays,
+  UserX,
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const todayStr = localDateStr();
   const [stats, setStats] = useState(null);
+  const [trackDate, setTrackDate] = useState(todayStr);
   const [loading, setLoading] = useState(true);
 
+  const fetchStats = async (date) => {
+    try {
+      setLoading(true);
+      const res = await adminApi.getDashboard({ date });
+      setStats(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const res = await adminApi.getDashboard();
-        setStats(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+    fetchStats(trackDate);
+  }, [trackDate]);
 
   if (loading) {
     return <div className="py-12 text-center text-slate-400">Loading system overview...</div>;
   }
+
+  const submittedPct =
+    stats?.total_employees > 0
+      ? Math.round((stats.submitted_count / stats.total_employees) * 100)
+      : 0;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -45,7 +56,22 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Submission tracking date picker */}
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
+            <CalendarDays className="w-4 h-4 text-slate-400" />
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Track Date
+            </label>
+            <input
+              type="date"
+              value={trackDate}
+              max={todayStr}
+              onChange={(e) => setTrackDate(e.target.value || todayStr)}
+              className="text-xs text-slate-800 bg-transparent focus:outline-none"
+            />
+          </div>
+
           <Link
             to="/admin/tasks"
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
@@ -97,16 +123,146 @@ export default function AdminDashboardPage() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Today's Submissions</span>
+            <span className="text-xs font-bold uppercase tracking-wider">
+              Submissions · {stats?.submission_date}
+            </span>
             <FileCheck className="w-4 h-4 text-emerald-600" />
           </div>
           <p className="text-2xl font-black text-slate-900">
-            {stats?.submitted_reports_today || 0}
+            {stats?.submitted_count || 0}
             <span className="text-xs text-slate-400 font-normal"> / {stats?.total_employees}</span>
           </p>
-          <span className="text-[11px] text-slate-400 mt-1 block">
-            {stats?.pending_submissions_today || 0} pending
-          </span>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all"
+                style={{ width: `${submittedPct}%` }}
+              />
+            </div>
+            <span className="text-[11px] font-semibold text-red-500">
+              {stats?.pending_count || 0} pending
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Submission Tracking — Submitted & Pending panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pending submissions — who hasn't submitted */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <UserX className="w-4 h-4 text-red-500" /> Pending Submissions
+            </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-50 text-red-600 border border-red-200">
+              {stats?.pending_count || 0} outstanding
+            </span>
+          </div>
+          {stats?.pending_users && stats.pending_users.length > 0 ? (
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {stats.pending_users.map((emp) => (
+                <div
+                  key={emp.id}
+                  className="flex items-center justify-between p-3 bg-red-50/40 rounded-xl border border-red-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 font-bold flex items-center justify-center text-xs">
+                      {emp.first_name?.[0]}
+                      {emp.last_name?.[0]}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-900">
+                        {emp.first_name} {emp.last_name}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {emp.department?.name || 'Unassigned'}
+                        {emp.role === 'MANAGER' && (
+                          <span className="ml-1 text-blue-500 font-bold">· Manager</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to={`/admin/users/${emp.id}/overview`}
+                    className="text-[10px] font-semibold text-blue-600 hover:text-blue-800"
+                  >
+                    View profile →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+              <p className="text-xs text-slate-500">
+                All active users have submitted for {stats?.submission_date}.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Submitted — who has submitted */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Submitted
+            </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200">
+              {stats?.submitted_count || 0} received
+            </span>
+          </div>
+          {stats?.submitted_users && stats.submitted_users.length > 0 ? (
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {stats.submitted_users.map((emp) => (
+                <div
+                  key={emp.id}
+                  className="flex items-center justify-between p-3 bg-emerald-50/40 rounded-xl border border-emerald-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-xs">
+                      {emp.first_name?.[0]}
+                      {emp.last_name?.[0]}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-900">
+                        {emp.first_name} {emp.last_name}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {emp.department?.name || 'Unassigned'} ·{' '}
+                        {emp.submitted_at
+                          ? new Date(emp.submitted_at).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : '—'}
+                        {emp.role === 'MANAGER' && (
+                          <span className="ml-1 text-blue-500 font-bold">· Manager</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-slate-700">
+                      {formatMinutes(emp.total_minutes || 0)}
+                    </span>
+                    <Link
+                      to={`/admin/users/${emp.id}/overview`}
+                      className="text-[10px] font-semibold text-blue-600 hover:text-blue-800"
+                    >
+                      View →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto mb-2" />
+              <p className="text-xs text-slate-500">
+                No submissions recorded for {stats?.submission_date} yet.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -125,7 +281,9 @@ export default function AdminDashboardPage() {
                   className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between"
                 >
                   <span className="text-xs font-semibold text-slate-800">{proj}</span>
-                  <span className="text-xs font-black text-blue-600">{hours} hrs</span>
+                  <span className="text-xs font-black text-blue-600">
+                    {Math.round(hours * 10) / 10} hrs
+                  </span>
                 </div>
               ))
             ) : (
@@ -147,7 +305,9 @@ export default function AdminDashboardPage() {
                   className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between"
                 >
                   <span className="text-xs font-semibold text-slate-800">{dept}</span>
-                  <span className="text-xs font-black text-purple-600">{hours} hrs</span>
+                  <span className="text-xs font-black text-purple-600">
+                    {Math.round(hours * 10) / 10} hrs
+                  </span>
                 </div>
               ))
             ) : (
@@ -155,6 +315,25 @@ export default function AdminDashboardPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Link to full timeline */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div className="text-white">
+          <h3 className="text-base font-bold flex items-center gap-2">
+            <CalendarDays className="w-5 h-5" /> Submission Timeline
+          </h3>
+          <p className="text-xs text-blue-100 mt-1">
+            Track submissions across multiple days in a grid view — see exactly who submitted and
+            who is outstanding, day by day.
+          </p>
+        </div>
+        <Link
+          to="/admin/submission-timeline"
+          className="px-5 py-2.5 bg-white text-blue-700 rounded-xl text-xs font-bold shadow-sm hover:bg-blue-50 transition whitespace-nowrap"
+        >
+          Open Submission Timeline →
+        </Link>
       </div>
     </div>
   );
