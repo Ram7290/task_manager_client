@@ -92,6 +92,11 @@ export default function SubmittedReportsPage() {
                     >
                       {report.status}
                     </span>
+                    {report.auto_submitted && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded border bg-amber-50 text-amber-800 border-amber-200">
+                        AUTO-SUBMITTED
+                      </span>
+                    )}
 
                     {isExpanded ? (
                       <ChevronDown className="w-4 h-4 text-slate-500" />

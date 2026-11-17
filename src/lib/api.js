@@ -63,6 +63,7 @@ export const worklogApi = {
   createCategory: (data) => api.post('/worklogs/categories', data),
   updateCategory: (id, data) => api.patch(`/worklogs/categories/${id}`, data),
   getTodayDraft: () => api.get('/worklogs/today'),
+  getReminder: () => api.get('/worklogs/reminder'),
   getMyReports: (params) => api.get('/worklogs/my-reports', { params }),
   getReportById: (id) => api.get(`/worklogs/reports/${id}`),
   addEntry: (reportId, data) => api.post(`/worklogs/reports/${reportId}/entries`, data),

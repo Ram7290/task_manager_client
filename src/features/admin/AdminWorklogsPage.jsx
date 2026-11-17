@@ -314,6 +314,11 @@ export default function AdminWorklogsPage() {
                         {report.employee?.department?.name || 'Engineering'} • Date:{' '}
                         {report.report_date}
                       </p>
+                      {report.auto_submitted && (
+                        <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded border bg-amber-50 text-amber-800 border-amber-200">
+                          AUTO-SUBMITTED AT 11:00 PM
+                        </span>
+                      )}
                     </div>
                   </div>
 

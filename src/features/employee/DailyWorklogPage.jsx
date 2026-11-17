@@ -2,7 +2,8 @@ import { Modal } from '../../components/ui/dialog';
 import { notify, confirmDialog, LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { worklogApi, taskApi, projectApi } from '../../lib/api';
-import { formatMinutes, localDateStr } from '../../lib/utils';
+import { formatMinutes, localDateStr, localDateOffset } from '../../lib/utils';
+import { SubmitReminder } from '../../components/ui/submit-reminder';
 import {
   Clock,
   Plus,
@@ -34,6 +35,8 @@ export default function DailyWorklogPage() {
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(60); // Default 60 mins
   const [editingEntryId, setEditingEntryId] = useState(null);
+  const [autoNotices, setAutoNotices] = useState([]);
+  const [reminder, setReminder] = useState(null);
 
   // Modals & submission state
   const [submitting, setSubmitting] = useState(false);
@@ -43,17 +46,23 @@ export default function DailyWorklogPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [todayReport, cats, tasks, projs] = await Promise.all([
+      const [todayReport, cats, tasks, projs, recent, reminderRes] = await Promise.all([
         worklogApi.getTodayDraft(),
         worklogApi.getCategories(),
         taskApi.myTasks(),
         projectApi.list(),
+        worklogApi.getMyReports({ status: 'SUBMITTED', start_date: localDateOffset(-7), end_date: localDateStr() }),
+        worklogApi.getReminder(),
       ]);
 
+      setReminder(reminderRes.data);
       setReport(todayReport.data);
       setCategories(cats.data);
       setMyTasks(tasks.data);
       setProjects(projs.data);
+
+      const dismissed = JSON.parse(localStorage.getItem('dismissedAutoSubmitNotices') || '[]');
+      setAutoNotices(recent.data.filter((r) => r.auto_submitted && !dismissed.includes(r.id)));
 
       if (cats.data.length > 0) {
         setSelectedCategoryId(cats.data[0].id);
@@ -67,6 +76,23 @@ export default function DailyWorklogPage() {
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  useEffect(() => {
+    const refreshReminder = () => {
+      worklogApi.getReminder().then((r) => setReminder(r.data)).catch(() => {});
+    };
+    const timer = setInterval(refreshReminder, 5 * 60 * 1000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') refreshReminder();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', refreshReminder);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', refreshReminder);
+    };
   }, []);
 
   // Duration Stepper (+ / - 30 minutes)
@@ -136,6 +162,12 @@ export default function DailyWorklogPage() {
     }
   };
 
+  const dismissAutoNotice = (reportId) => {
+    const dismissed = JSON.parse(localStorage.getItem('dismissedAutoSubmitNotices') || '[]');
+    localStorage.setItem('dismissedAutoSubmitNotices', JSON.stringify([...dismissed, reportId]));
+    setAutoNotices((prev) => prev.filter((r) => r.id !== reportId));
+  };
+
   const handleDeleteEntry = async (entryId) => {
     if (!(await confirmDialog('Are you sure you want to delete this worklog entry?'))) return;
     try {
@@ -171,6 +203,8 @@ export default function DailyWorklogPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      <SubmitReminder reminder={reminder} />
+
       {/* Top Banner / Status Card */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -212,6 +246,38 @@ export default function DailyWorklogPage() {
           </div>
         </div>
       </div>
+
+      {/* Auto-submit notices */}
+      {autoNotices.map((r) => (
+        <div
+          key={r.id}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 text-amber-900 text-xs"
+        >
+          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-600" />
+          <div className="flex-1">
+            <p className="font-semibold">
+              Your draft from{' '}
+              {new Date(`${r.report_date}T00:00:00`).toLocaleDateString(undefined, {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })}{' '}
+              was auto-submitted at 11:00 PM.
+            </p>
+            <p className="text-amber-800 mt-0.5">
+              It wasn't submitted in time, so it is now locked. Contact your administrator if a correction is needed.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => dismissAutoNotice(r.id)}
+            className="text-amber-700 hover:text-amber-900"
+            aria-label="Dismiss notice"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
 
       {/* Submitted Notice Banner */}
       {isSubmitted && (

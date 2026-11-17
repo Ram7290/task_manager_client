@@ -3,6 +3,7 @@ import { notify, confirmDialog, LoadingSkeleton } from '../../components/ui/feed
 import React, { useState, useEffect } from 'react';
 import { worklogApi, taskApi, projectApi } from '../../lib/api';
 import { formatMinutes, localDateStr } from '../../lib/utils';
+import { SubmitReminder } from '../../components/ui/submit-reminder';
 import {
   Clock,
   Plus,
@@ -16,6 +17,7 @@ import {
 
 export default function ManagerDailyWorklogPage() {
   const [report, setReport] = useState(null);
+  const [reminder, setReminder] = useState(null);
   const [categories, setCategories] = useState([]);
   const [myTasks, setMyTasks] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -36,12 +38,14 @@ export default function ManagerDailyWorklogPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [todayReport, cats, tasks, projs] = await Promise.all([
+      const [todayReport, cats, tasks, projs, reminderRes] = await Promise.all([
         worklogApi.getTodayDraft(),
         worklogApi.getCategories(),
         taskApi.myTasks(),
         projectApi.list(),
+        worklogApi.getReminder(),
       ]);
+      setReminder(reminderRes.data);
       setReport(todayReport.data);
       setCategories(cats.data);
       setMyTasks(tasks.data);
@@ -55,6 +59,23 @@ export default function ManagerDailyWorklogPage() {
   };
 
   useEffect(() => { loadData(); }, []);
+
+  useEffect(() => {
+    const refreshReminder = () => {
+      worklogApi.getReminder().then((r) => setReminder(r.data)).catch(() => {});
+    };
+    const timer = setInterval(refreshReminder, 5 * 60 * 1000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') refreshReminder();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', refreshReminder);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', refreshReminder);
+    };
+  }, []);
 
   const increaseDuration = () => setDurationMinutes((p) => p + 30);
   const decreaseDuration = () => setDurationMinutes((p) => (p > 30 ? p - 30 : 30));
@@ -112,6 +133,7 @@ export default function ManagerDailyWorklogPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      <SubmitReminder reminder={reminder} />
       {/* Header */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
