@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { notify } from '../ui/feedback';
+import { Modal } from '../ui/dialog';
 import {
   CheckSquare,
   Clock,
@@ -45,6 +47,44 @@ export default function AppLayout() {
     navigate('/login');
   };
 
+  const INACTIVITY_LIMIT_MS = 30 * 60 * 1000;
+  const WARNING_MS = 60 * 1000;
+  const lastActivityRef = useRef(Date.now());
+  const [secondsLeft, setSecondsLeft] = useState(null);
+
+  const stayActive = () => {
+    lastActivityRef.current = Date.now();
+    setSecondsLeft(null);
+  };
+
+  useEffect(() => {
+    const markActive = () => {
+      lastActivityRef.current = Date.now();
+    };
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach((evt) => window.addEventListener(evt, markActive, { passive: true }));
+
+    const timer = setInterval(() => {
+      const idle = Date.now() - lastActivityRef.current;
+      if (idle >= INACTIVITY_LIMIT_MS) {
+        clearInterval(timer);
+        setSecondsLeft(null);
+        logout();
+        notify.error('You were signed out after 30 minutes of inactivity.');
+        navigate('/login');
+      } else if (idle >= INACTIVITY_LIMIT_MS - WARNING_MS) {
+        setSecondsLeft(Math.ceil((INACTIVITY_LIMIT_MS - idle) / 1000));
+      } else {
+        setSecondsLeft(null);
+      }
+    }, 1000);
+
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, markActive));
+      clearInterval(timer);
+    };
+  }, [logout, navigate]);
+
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case 'ADMIN':
@@ -58,6 +98,25 @@ export default function AppLayout() {
 
   return (
     <div className="fixed inset-0 flex bg-slate-50 overflow-hidden">
+      {secondsLeft !== null && (
+        <Modal open onOpenChange={(o) => { if (!o) stayActive(); }}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 border border-slate-100 text-center">
+            <h2 className="text-base font-bold text-slate-900">Are you still there?</h2>
+            <p className="text-sm text-slate-600 mt-2">
+              You will be signed out in{' '}
+              <span className="font-bold text-slate-900">{secondsLeft}</span> seconds due to inactivity.
+            </p>
+            <button
+              type="button"
+              onClick={stayActive}
+              className="mt-5 w-full py-2.5 rounded-xl text-xs font-semibold text-white bg-brand hover:bg-brand-dark shadow-sm transition"
+            >
+              Stay signed in
+            </button>
+          </div>
+        </Modal>
+      )}
+
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
