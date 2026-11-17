@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -15,12 +15,27 @@ import {
   KeyRound,
   Menu,
   Tags,
+  ChevronDown,
 } from 'lucide-react';
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navRef = useRef(null);
+  const [moreBelow, setMoreBelow] = useState(false);
+
+  const updateMoreBelow = () => {
+    const el = navRef.current;
+    if (!el) return;
+    setMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 8);
+  };
+
+  useEffect(() => {
+    updateMoreBelow();
+    window.addEventListener('resize', updateMoreBelow);
+    return () => window.removeEventListener('resize', updateMoreBelow);
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -82,8 +97,11 @@ export default function AppLayout() {
         </div>
 
         {/* Nav Links */}
+        <div className="relative flex-1 min-h-0 flex flex-col">
         <nav
-          className="flex-1 px-3 py-2 space-y-1 overflow-y-auto"
+          ref={navRef}
+          onScroll={updateMoreBelow}
+          className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto hide-scrollbar"
           onClick={() => setMobileOpen(false)}
         >
           {/* Employee Navigation */}
@@ -322,6 +340,12 @@ export default function AppLayout() {
             </>
           )}
         </nav>
+          {moreBelow && (
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-14 flex items-end justify-center pb-1 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent text-slate-400">
+              <ChevronDown className="w-4 h-4 animate-bounce" />
+            </div>
+          )}
+        </div>
 
         {/* Footer with logout */}
         <div className="p-3 border-t border-slate-800 space-y-1">

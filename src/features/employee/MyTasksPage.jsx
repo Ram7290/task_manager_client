@@ -153,7 +153,7 @@ export default function MyTasksPage() {
             const isOverdue =
               item.assignment_status !== 'COMPLETED' &&
               task.due_date &&
-              task.due_date < localToday();
+              task.due_date < localDateStr();
 
             return (
               <div
