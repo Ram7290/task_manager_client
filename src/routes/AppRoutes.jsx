@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 import LoginPage from '../features/auth/LoginPage';
+import ChangePasswordPage from '../features/auth/ChangePasswordPage';
 import AppLayout from '../components/layout/AppLayout';
 
 // Employee
@@ -70,6 +71,9 @@ export default function AppRoutes() {
         }
       >
         <Route index element={<RoleHomeRedirect />} />
+
+        {/* Shared: every signed-in role can change their own password */}
+        <Route path="change-password" element={<ChangePasswordPage />} />
 
         {/* Employee Routes */}
         <Route

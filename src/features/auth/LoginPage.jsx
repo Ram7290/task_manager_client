@@ -32,12 +32,6 @@ export default function LoginPage() {
     }
   };
 
-  const quickFill = (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError('');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -107,36 +101,6 @@ export default function LoginPage() {
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-
-          {/* Quick Demo Login Preset Buttons */}
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 text-center">
-              Quick Demo Fill
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => quickFill('admin@company.com', 'Admin@123')}
-                className="px-2 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded text-xs font-medium text-center transition"
-              >
-                Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => quickFill('manager@company.com', 'Manager@123')}
-                className="px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-xs font-medium text-center transition"
-              >
-                Manager
-              </button>
-              <button
-                type="button"
-                onClick={() => quickFill('john.doe@company.com', 'Employee@123')}
-                className="px-2 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded text-xs font-medium text-center transition"
-              >
-                Employee
-              </button>
-            </div>
-          </div>
         </div>
 
         <p className="text-center text-xs text-slate-500 mt-6">

@@ -41,6 +41,7 @@ export const authApi = {
   login: (credentials) => api.post('/auth/login', credentials),
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
+  changePassword: (data) => api.post('/auth/change-password', data),
 };
 
 export const taskApi = {
@@ -86,6 +87,8 @@ export const adminApi = {
   createUser: (data) => api.post('/users', data),
   updateUser: (id, data) => api.patch(`/users/${id}`, data),
   toggleUserStatus: (id) => api.patch(`/users/${id}/status`),
+  resetUserPassword: (id, new_password) =>
+    api.post(`/users/${id}/reset-password`, { new_password }),
   setManagerTeam: (managerId, employee_ids) =>
     api.post(`/users/${managerId}/team`, { employee_ids }),
   getDepartments: () => api.get('/departments'),
