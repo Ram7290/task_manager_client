@@ -1,3 +1,4 @@
+import { LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
@@ -80,7 +81,7 @@ const CELL_STYLES = {
     label: () => 'H',
   },
   missing: {
-    cls: 'bg-slate-200 text-slate-400',
+    cls: 'bg-slate-200 text-slate-500',
     title: () => 'Not submitted',
     icon: <XCircle className="w-3.5 h-3.5" />,
     label: () => '',
@@ -159,7 +160,7 @@ export default function AdminSubmissionTimelinePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <CalendarDays className="w-6 h-6 text-blue-600" />
+            <CalendarDays className="w-6 h-6 text-brand" />
             Submission Timeline
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -200,7 +201,7 @@ export default function AdminSubmissionTimelinePage() {
               type="date"
               value={filters.start_date}
               onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </div>
           <div>
@@ -209,7 +210,7 @@ export default function AdminSubmissionTimelinePage() {
               type="date"
               value={filters.end_date}
               onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </div>
           <div>
@@ -217,7 +218,7 @@ export default function AdminSubmissionTimelinePage() {
             <select
               value={filters.department_id}
               onChange={(e) => setFilters({ ...filters, department_id: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
             >
               <option value="">All Departments</option>
               {departments.map((d) => (
@@ -235,7 +236,7 @@ export default function AdminSubmissionTimelinePage() {
           </button>
           <button
             onClick={handleApplyFilters}
-            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
+            className="px-4 py-1.5 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
           >
             <Filter className="w-3.5 h-3.5" /> Apply
           </button>
@@ -250,7 +251,7 @@ export default function AdminSubmissionTimelinePage() {
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-100 border border-red-200" /> Absent (A)</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-100 border border-amber-200" /> Leave (L)</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-orange-100 border border-orange-200" /> Half Day (H)</span>
-        <span className="ml-auto flex items-center gap-1.5 text-slate-400">
+        <span className="ml-auto flex items-center gap-1.5 text-slate-500">
           <Users className="w-3.5 h-3.5" />
           {data?.total_users || 0} users · {data?.dates?.length || 0} days
         </span>
@@ -258,7 +259,7 @@ export default function AdminSubmissionTimelinePage() {
 
       {/* Grid */}
       {loading ? (
-        <div className="py-12 text-center text-slate-400">Loading submission timeline...</div>
+        <LoadingSkeleton />
       ) : !data || (data.users || []).length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
@@ -287,7 +288,7 @@ export default function AdminSubmissionTimelinePage() {
                           {formatDay(d).split(' ')[0]}
                         </div>
                         <div className="font-black">{formatDay(d).split(' ')[1]}</div>
-                        {isOff && <div className="text-[8px] text-slate-400 mt-0.5">off</div>}
+                        {isOff && <div className="text-[8px] text-slate-500 mt-0.5">off</div>}
                       </th>
                     );
                   })}
@@ -297,8 +298,8 @@ export default function AdminSubmissionTimelinePage() {
                 </tr>
 
                 {/* Per-day summary row */}
-                <tr className="border-b border-slate-200 bg-blue-50/40">
-                  <td className="sticky left-0 z-10 bg-blue-50/40 py-2 px-4 font-bold text-slate-700">
+                <tr className="border-b border-slate-200 bg-brand-light/40">
+                  <td className="sticky left-0 z-10 bg-brand-light/40 py-2 px-4 font-bold text-slate-700">
                     Day Summary
                   </td>
                   {data.dates.map((d) => {
@@ -317,12 +318,12 @@ export default function AdminSubmissionTimelinePage() {
                       <td key={d} className="px-1 py-2 text-center">
                         <div
                           className={`text-[10px] font-black ${
-                            pct === 100 ? 'text-emerald-600' : pct >= 50 ? 'text-blue-600' : 'text-red-500'
+                            pct === 100 ? 'text-emerald-600' : pct >= 50 ? 'text-brand' : 'text-red-500'
                           }`}
                         >
                           {s.submitted}/{expected}
                         </div>
-                        <div className="text-[9px] text-slate-400">{pct}%</div>
+                        <div className="text-[9px] text-slate-500">{pct}%</div>
                       </td>
                     );
                   })}
@@ -356,14 +357,14 @@ export default function AdminSubmissionTimelinePage() {
                           <div>
                             <Link
                               to={`/admin/users/${user.id}/overview`}
-                              className="font-semibold text-slate-900 hover:text-blue-600 transition"
+                              className="font-semibold text-slate-900 hover:text-brand transition"
                             >
                               {user.first_name} {user.last_name}
                             </Link>
-                            <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                            <div className="text-[10px] text-slate-500 flex items-center gap-1">
                               {user.department?.name || 'Unassigned'}
                               {user.role === 'MANAGER' && (
-                                <span className="text-blue-500 font-bold">· Mgr</span>
+                                <span className="text-brand font-bold">· Mgr</span>
                               )}
                             </div>
                           </div>
@@ -392,12 +393,12 @@ export default function AdminSubmissionTimelinePage() {
                       <td className="py-3 px-3 text-center bg-slate-50">
                         <span
                           className={`text-[11px] font-black ${
-                            rate === 100 ? 'text-emerald-600' : rate >= 50 ? 'text-blue-600' : 'text-red-500'
+                            rate === 100 ? 'text-emerald-600' : rate >= 50 ? 'text-brand' : 'text-red-500'
                           }`}
                         >
                           {submittedCount}/{expectedCount}
                         </span>
-                        <div className="text-[9px] text-slate-400">{rate}%</div>
+                        <div className="text-[9px] text-slate-500">{rate}%</div>
                       </td>
                     </tr>
                   );
@@ -425,7 +426,7 @@ export default function AdminSubmissionTimelinePage() {
               { label: 'Off / Absent', value: totalAbsent, color: 'text-amber-600' },
             ].map((s) => (
               <div key={s.label} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.label}</p>
                 <p className={`text-xl font-black mt-1 ${s.color}`}>{s.value}</p>
               </div>
             ))}

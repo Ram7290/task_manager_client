@@ -1,3 +1,5 @@
+import { Modal } from '../../components/ui/dialog';
+import { notify, confirmDialog, LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { worklogApi, taskApi, projectApi } from '../../lib/api';
 import { formatMinutes, localDateStr } from '../../lib/utils';
@@ -84,12 +86,12 @@ export default function ManagerDailyWorklogPage() {
   };
 
   const handleDeleteEntry = async (entryId) => {
-    if (!confirm('Delete this worklog entry?')) return;
+    if (!(await confirmDialog('Delete this worklog entry?'))) return;
     try {
       await worklogApi.deleteEntry(entryId);
       const updated = await worklogApi.getReportById(report.id);
       setReport(updated.data);
-    } catch (err) { alert(err.message); }
+    } catch (err) { notify.error(err.message); }
   };
 
   const handleSubmitReport = async () => {
@@ -99,11 +101,11 @@ export default function ManagerDailyWorklogPage() {
       setShowSubmitModal(false);
       const updated = await worklogApi.getReportById(report.id);
       setReport(updated.data);
-    } catch (err) { alert(err.message); }
+    } catch (err) { notify.error(err.message); }
     finally { setSubmitting(false); }
   };
 
-  if (loading) return <div className="py-12 text-center text-slate-400">Loading daily worklog...</div>;
+  if (loading) return <LoadingSkeleton />;
 
   const isSubmitted = report?.status === 'SUBMITTED';
   const totalMinutes = report?.worklogs?.reduce((s, e) => s + e.duration_minutes, 0) || 0;
@@ -114,7 +116,7 @@ export default function ManagerDailyWorklogPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Calendar className="w-4 h-4 text-slate-400" />
+            <Calendar className="w-4 h-4 text-slate-500" />
             <h1 className="text-xl font-bold text-slate-900">
               Daily Worklog — {report?.report_date}
             </h1>
@@ -125,7 +127,7 @@ export default function ManagerDailyWorklogPage() {
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <span className="text-xs text-slate-400 block font-medium">Total Time Logged</span>
+            <span className="text-xs text-slate-500 block font-medium">Total Time Logged</span>
             <span className="text-xl font-black text-slate-800">{formatMinutes(totalMinutes)}</span>
           </div>
           <div className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${
@@ -156,7 +158,7 @@ export default function ManagerDailyWorklogPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-blue-600" /> Add Worklog Entry
+              <Plus className="w-4 h-4 text-brand" /> Add Worklog Entry
             </h2>
             <div className="flex items-center bg-slate-100 p-1 rounded-lg">
               {myTasks.length > 0 && (
@@ -164,7 +166,7 @@ export default function ManagerDailyWorklogPage() {
                   type="button"
                   onClick={() => setEntryType('TASK')}
                   className={`px-3 py-1 rounded-md text-xs font-semibold transition ${
-                    entryType === 'TASK' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                    entryType === 'TASK' ? 'bg-white text-brand shadow-sm' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Assigned Task
@@ -174,7 +176,7 @@ export default function ManagerDailyWorklogPage() {
                 type="button"
                 onClick={() => setEntryType('UNPLANNED')}
                 className={`px-3 py-1 rounded-md text-xs font-semibold transition ${
-                  entryType === 'UNPLANNED' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  entryType === 'UNPLANNED' ? 'bg-white text-brand shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Unplanned / General
@@ -203,7 +205,7 @@ export default function ManagerDailyWorklogPage() {
                       if (t?.task?.project_id) setSelectedProjectId(t.task.project_id);
                     }}
                     required
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="">-- Choose a task --</option>
                     {myTasks.map((item) => (
@@ -221,7 +223,7 @@ export default function ManagerDailyWorklogPage() {
                   <select
                     value={selectedProjectId}
                     onChange={(e) => setSelectedProjectId(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="">-- General / Non-Project --</option>
                     {projects.map((p) => (
@@ -239,7 +241,7 @@ export default function ManagerDailyWorklogPage() {
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
                   required
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -258,7 +260,7 @@ export default function ManagerDailyWorklogPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What did you work on today?"
                 required
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 leading-relaxed"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand leading-relaxed"
               />
             </div>
 
@@ -278,10 +280,10 @@ export default function ManagerDailyWorklogPage() {
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                <span className="text-[11px] text-slate-400 italic">(Steps: 30m, 60m, 90m...)</span>
+                <span className="text-[11px] text-slate-500 italic">(Steps: 30m, 60m, 90m...)</span>
               </div>
               <button type="submit"
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2">
+                className="px-5 py-2.5 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2">
                 <Plus className="w-4 h-4" /> Add to Daily Draft
               </button>
             </div>
@@ -294,7 +296,7 @@ export default function ManagerDailyWorklogPage() {
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
             <h2 className="text-base font-bold text-slate-900">Today's Logged Entries</h2>
-            <p className="text-xs text-slate-400">{report?.worklogs?.length || 0} entries recorded</p>
+            <p className="text-xs text-slate-500">{report?.worklogs?.length || 0} entries recorded</p>
           </div>
           {!isSubmitted && (report?.worklogs?.length || 0) > 0 && (
             <button onClick={() => setShowSubmitModal(true)}
@@ -305,7 +307,7 @@ export default function ManagerDailyWorklogPage() {
         </div>
 
         {(report?.worklogs?.length || 0) === 0 ? (
-          <div className="py-12 text-center text-slate-400">
+          <div className="py-12 text-center text-slate-500">
             <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm font-medium">No entries added yet today.</p>
             <p className="text-xs mt-1">Use the form above to add your first worklog entry.</p>
@@ -316,7 +318,7 @@ export default function ManagerDailyWorklogPage() {
               <div key={entry.id} className="py-4 flex items-start justify-between gap-4">
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-light text-brand-dark border border-brand-light">
                       {entry.category?.name || 'General'}
                     </span>
                     {entry.project && (
@@ -340,7 +342,7 @@ export default function ManagerDailyWorklogPage() {
                   </span>
                   {!isSubmitted && (
                     <button onClick={() => handleDeleteEntry(entry.id)}
-                      className="p-1 text-slate-400 hover:text-red-600 transition">
+                      className="p-1 text-slate-500 hover:text-red-600 transition">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
@@ -353,7 +355,7 @@ export default function ManagerDailyWorklogPage() {
 
       {/* Submit Confirmation Modal */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(showSubmitModal)} onOpenChange={(o) => { if (!o) setShowSubmitModal(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
             <div className="flex items-center gap-3 text-amber-600 mb-3">
               <AlertTriangle className="w-6 h-6 flex-shrink-0" />
@@ -385,7 +387,7 @@ export default function ManagerDailyWorklogPage() {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

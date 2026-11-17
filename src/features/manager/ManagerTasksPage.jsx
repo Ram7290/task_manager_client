@@ -1,3 +1,5 @@
+import { Modal } from '../../components/ui/dialog';
+import { notify, LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { taskApi, managerApi, adminApi, projectApi } from '../../lib/api';
@@ -138,7 +140,7 @@ export default function ManagerTasksPage() {
       setSelectedTask(updated.data);
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -159,7 +161,7 @@ export default function ManagerTasksPage() {
       case 'LOW':
         return 'bg-slate-100 text-slate-700 border-slate-200';
       default:
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-brand-light text-brand-dark border-brand-light';
     }
   };
 
@@ -180,7 +182,7 @@ export default function ManagerTasksPage() {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2 self-start"
+          className="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2 self-start"
         >
           <Plus className="w-4 h-4" />
           Create New Task
@@ -190,44 +192,58 @@ export default function ManagerTasksPage() {
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tasks by title or description..."
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Priority:
-          </span>
-          {['ALL', 'LOW', 'MEDIUM', 'HIGH', 'URGENT'].map((p) => (
-            <button
-              key={p}
-              onClick={() => setPriorityFilter(p)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                priorityFilter === p
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+        <div className="w-full sm:w-auto">
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="sm:hidden w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand"
+            aria-label="Filter by priority"
+          >
+            {['ALL', 'LOW', 'MEDIUM', 'HIGH', 'URGENT'].map((p) => (
+              <option key={p} value={p}>
+                Priority: {p}
+              </option>
+            ))}
+          </select>
+          <div className="hidden sm:flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Priority:
+            </span>
+            {['ALL', 'LOW', 'MEDIUM', 'HIGH', 'URGENT'].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPriorityFilter(p)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                  priorityFilter === p
+                    ? 'bg-brand text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Task Cards */}
       {loading ? (
-        <div className="py-12 text-center text-slate-400">Loading tasks...</div>
+        <LoadingSkeleton />
       ) : filteredTasks.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <Clock className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">No tasks found</p>
-          <p className="text-xs text-slate-400 mt-1">Create your first task to get started.</p>
+          <p className="text-xs text-slate-500 mt-1">Create your first task to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -261,7 +277,7 @@ export default function ManagerTasksPage() {
                 </p>
 
                 {task.project && (
-                  <div className="mt-3 flex items-center gap-1.5 text-xs text-blue-600 font-medium truncate">
+                  <div className="mt-3 flex items-center gap-1.5 text-xs text-brand font-medium truncate">
                     <Layers className="w-3.5 h-3.5 flex-shrink-0" />
                     <span className="truncate">{task.project.name}</span>
                   </div>
@@ -270,7 +286,7 @@ export default function ManagerTasksPage() {
 
               {/* Assignees Progress Indicators */}
               <div className="mt-4 pt-3 border-t border-slate-100">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
                   Assignees ({task.assignees?.length || 0})
                 </span>
                 <div className="space-y-1.5">
@@ -287,7 +303,7 @@ export default function ManagerTasksPage() {
                           a.status === 'COMPLETED'
                             ? 'bg-emerald-100 text-emerald-800'
                             : a.status === 'IN_PROGRESS'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-brand-light text-brand-dark'
                             : 'bg-slate-200 text-slate-700'
                         }`}
                       >
@@ -304,7 +320,7 @@ export default function ManagerTasksPage() {
 
       {/* Create Task Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(showCreateModal)} onOpenChange={(o) => { if (!o) setShowCreateModal(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div>
@@ -317,7 +333,7 @@ export default function ManagerTasksPage() {
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
+                className="text-slate-500 hover:text-slate-600 p-1"
               >
                 ✕
               </button>
@@ -340,7 +356,7 @@ export default function ManagerTasksPage() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. Implement user dashboard charts"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
 
@@ -354,7 +370,7 @@ export default function ManagerTasksPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Provide complete requirements and acceptance criteria"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
 
@@ -366,7 +382,7 @@ export default function ManagerTasksPage() {
                   <select
                     value={formData.project_id}
                     onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="">-- No Project --</option>
                     {projects.map((p) => (
@@ -384,7 +400,7 @@ export default function ManagerTasksPage() {
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -403,7 +419,7 @@ export default function ManagerTasksPage() {
                     type="date"
                     value={formData.start_date}
                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div>
@@ -414,7 +430,7 @@ export default function ManagerTasksPage() {
                     type="date"
                     value={formData.due_date}
                     onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div>
@@ -429,7 +445,7 @@ export default function ManagerTasksPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, estimated_minutes: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
               </div>
@@ -457,7 +473,7 @@ export default function ManagerTasksPage() {
                           onClick={() => toggleAssignee(emp.id)}
                           className={`p-2 rounded-lg border text-xs cursor-pointer flex items-center justify-between transition ${
                             isSelected
-                              ? 'bg-blue-50 border-blue-300 text-blue-900 font-semibold'
+                              ? 'bg-brand-light border-brand text-brand-dark font-semibold'
                               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                           }`}
                         >
@@ -465,14 +481,14 @@ export default function ManagerTasksPage() {
                             {emp.first_name} {emp.last_name}
                           </span>
                           {isSelected && (
-                            <CheckCircle className="w-3.5 h-3.5 text-blue-600 flex-shrink-0 ml-1" />
+                            <CheckCircle className="w-3.5 h-3.5 text-brand flex-shrink-0 ml-1" />
                           )}
                         </div>
                       );
                     })}
                   </div>
                 )}
-                <span className="text-[11px] text-slate-400 mt-1 block">
+                <span className="text-[11px] text-slate-500 mt-1 block">
                   Click to toggle. Selected: {formData.assignee_ids.length} employee(s).
                 </span>
               </div>
@@ -488,19 +504,19 @@ export default function ManagerTasksPage() {
                 <button
                   type="submit"
                   disabled={creating || formData.assignee_ids.length === 0}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-50"
+                  className="px-5 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-50"
                 >
                   {creating ? 'Creating...' : 'Create & Assign Task'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Task Details Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(selectedTask)} onOpenChange={(o) => { if (!o) setSelectedTask(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
             <div className="p-6 border-b border-slate-100 flex items-start justify-between">
               <div>
@@ -513,14 +529,14 @@ export default function ManagerTasksPage() {
                 </span>
                 <h2 className="text-xl font-bold text-slate-900">{selectedTask.title}</h2>
                 {selectedTask.project && (
-                  <p className="text-xs text-blue-600 font-medium mt-1">
+                  <p className="text-xs text-brand font-medium mt-1">
                     Project: {selectedTask.project.name}
                   </p>
                 )}
               </div>
               <button
                 onClick={() => setSelectedTask(null)}
-                className="text-slate-400 hover:text-slate-600 p-1"
+                className="text-slate-500 hover:text-slate-600 p-1"
               >
                 ✕
               </button>
@@ -528,7 +544,7 @@ export default function ManagerTasksPage() {
 
             <div className="p-6 overflow-y-auto space-y-6 flex-1">
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                   Instructions
                 </h4>
                 <div className="bg-slate-50 rounded-xl p-4 text-xs text-slate-700 whitespace-pre-wrap leading-relaxed border border-slate-100">
@@ -538,7 +554,7 @@ export default function ManagerTasksPage() {
 
               {/* Assignees List */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                   Individual Assignee Progress
                 </h4>
                 <div className="space-y-2">
@@ -551,14 +567,14 @@ export default function ManagerTasksPage() {
                         <span className="font-semibold text-slate-900">
                           {a.employee?.first_name} {a.employee?.last_name}
                         </span>
-                        <span className="text-[10px] text-slate-400 block">{a.employee?.email}</span>
+                        <span className="text-[10px] text-slate-500 block">{a.employee?.email}</span>
                       </div>
                       <span
                         className={`font-bold px-2.5 py-1 rounded-lg ${
                           a.status === 'COMPLETED'
                             ? 'bg-emerald-100 text-emerald-800'
                             : a.status === 'IN_PROGRESS'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-brand-light text-brand-dark'
                             : 'bg-slate-200 text-slate-700'
                         }`}
                       >
@@ -571,7 +587,7 @@ export default function ManagerTasksPage() {
 
               {/* Comments Section */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
                   <MessageSquare className="w-3.5 h-3.5" /> Comments & Activity
                 </h4>
                 <div className="space-y-3 mb-4 max-h-48 overflow-y-auto pr-1">
@@ -585,7 +601,7 @@ export default function ManagerTasksPage() {
                           <span className="font-semibold text-slate-800">
                             {c.author?.first_name} {c.author?.last_name}
                           </span>
-                          <span className="text-slate-400 text-[10px]">
+                          <span className="text-slate-500 text-[10px]">
                             {new Date(c.createdAt).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit',
@@ -596,7 +612,7 @@ export default function ManagerTasksPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-400 italic">No comments yet.</p>
+                    <p className="text-xs text-slate-500 italic">No comments yet.</p>
                   )}
                 </div>
 
@@ -606,11 +622,11 @@ export default function ManagerTasksPage() {
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Add a comment or directive..."
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1.5"
+                    className="px-4 py-2 bg-brand text-white rounded-lg text-xs font-semibold hover:bg-brand-dark transition flex items-center gap-1.5"
                   >
                     <Send className="w-3 h-3" />
                     Comment
@@ -619,7 +635,7 @@ export default function ManagerTasksPage() {
               </div>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

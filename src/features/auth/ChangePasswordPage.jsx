@@ -38,7 +38,7 @@ export default function ChangePasswordPage() {
   };
 
   const inputClass =
-    'w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500';
+    'w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -107,7 +107,7 @@ export default function ChangePasswordPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50"
+            className="w-full py-2.5 px-4 bg-brand hover:bg-brand-dark text-white rounded-lg text-sm font-semibold shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50"
           >
             <KeyRound className="w-4 h-4" />
             {saving ? 'Saving...' : 'Update Password'}

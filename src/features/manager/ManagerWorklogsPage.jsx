@@ -1,3 +1,4 @@
+import { LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { managerApi } from '../../lib/api';
 import { formatMinutes } from '../../lib/utils';
@@ -67,7 +68,7 @@ export default function ManagerWorklogsPage() {
           <select
             value={selectedEmployeeId}
             onChange={(e) => setSelectedEmployeeId(e.target.value)}
-            className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
           >
             <option value="">All Team Members</option>
             {team.map((emp) => (
@@ -80,8 +81,8 @@ export default function ManagerWorklogsPage() {
       </div>
 
       {/* Privacy Notice Alert */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3 text-blue-800 text-xs">
-        <ShieldCheck className="w-5 h-5 flex-shrink-0 text-blue-600" />
+      <div className="bg-brand-light border border-brand-light rounded-xl p-4 flex items-center gap-3 text-brand-dark text-xs">
+        <ShieldCheck className="w-5 h-5 flex-shrink-0 text-brand" />
         <div>
           <span className="font-bold">Privacy Guard Active: </span>
           Only finalized reports that employees have explicitly submitted are displayed here. In
@@ -92,12 +93,12 @@ export default function ManagerWorklogsPage() {
 
       {/* Reports List */}
       {loading ? (
-        <div className="py-12 text-center text-slate-400">Loading submitted worklogs...</div>
+        <LoadingSkeleton />
       ) : reports.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">No submitted reports found</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Reports will appear here once team members finish and submit their daily logs.
           </p>
         </div>
@@ -126,7 +127,7 @@ export default function ManagerWorklogsPage() {
                       <h3 className="font-bold text-slate-900 text-sm">
                         {report.employee?.first_name} {report.employee?.last_name}
                       </h3>
-                      <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" /> Date: {report.report_date}
                         </span>
@@ -146,7 +147,7 @@ export default function ManagerWorklogsPage() {
 
                   <div className="flex items-center gap-5">
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
                         Total Effort
                       </span>
                       <span className="text-base font-black text-slate-900">
@@ -159,9 +160,9 @@ export default function ManagerWorklogsPage() {
                     </span>
 
                     {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                      <ChevronDown className="w-4 h-4 text-slate-500" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ChevronRight className="w-4 h-4 text-slate-500" />
                     )}
                   </div>
                 </div>
@@ -173,7 +174,7 @@ export default function ManagerWorklogsPage() {
                       <div key={w.id} className="py-3 flex items-start justify-between gap-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-light text-brand-dark">
                               {w.category?.name}
                             </span>
                             {w.task && (

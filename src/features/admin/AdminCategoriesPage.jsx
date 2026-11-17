@@ -76,7 +76,7 @@ export default function AdminCategoriesPage() {
   };
 
   const inputClass =
-    'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500';
+    'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -97,7 +97,7 @@ export default function AdminCategoriesPage() {
       {/* Add category */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <Tags className="w-4 h-4 text-blue-600" /> Add Category
+          <Tags className="w-4 h-4 text-brand" /> Add Category
         </h2>
         <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-3">
           <input
@@ -121,7 +121,7 @@ export default function AdminCategoriesPage() {
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-1"
+            className="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" />
             {saving ? 'Adding...' : 'Add'}
@@ -134,7 +134,7 @@ export default function AdminCategoriesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider bg-slate-50">
+              <tr className="border-b border-slate-100 text-slate-500 uppercase tracking-wider bg-slate-50">
                 <th className="py-3 px-4 font-bold">Name</th>
                 <th className="py-3 px-4 font-bold">Description</th>
                 <th className="py-3 px-4 font-bold">Status</th>
@@ -144,14 +144,14 @@ export default function AdminCategoriesPage() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading && (
                 <tr>
-                  <td colSpan={4} className="py-6 px-4 text-center text-slate-400">
+                  <td colSpan={4} className="py-6 px-4 text-center text-slate-500">
                     Loading...
                   </td>
                 </tr>
               )}
               {!loading && categories.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-6 px-4 text-center text-slate-400">
+                  <td colSpan={4} className="py-6 px-4 text-center text-slate-500">
                     No categories yet. Add one above.
                   </td>
                 </tr>
@@ -202,7 +202,7 @@ export default function AdminCategoriesPage() {
                         <>
                           <button
                             onClick={() => handleSaveEdit(cat.id)}
-                            className="px-2.5 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+                            className="px-2.5 py-1 bg-brand text-white rounded-lg hover:bg-brand-dark font-semibold"
                           >
                             Save
                           </button>

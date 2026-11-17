@@ -1,3 +1,4 @@
+import { LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { adminApi } from '../../lib/api';
 import { ShieldAlert, Clock, User, FileText } from 'lucide-react';
@@ -32,7 +33,7 @@ export default function AdminAuditLogsPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-slate-400">Loading audit history...</div>
+        <LoadingSkeleton />
       ) : logs.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <ShieldAlert className="w-10 h-10 text-slate-300 mx-auto mb-3" />
@@ -43,7 +44,7 @@ export default function AdminAuditLogsPage() {
           <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider bg-slate-50">
+              <tr className="border-b border-slate-100 text-slate-500 uppercase tracking-wider bg-slate-50">
                 <th className="py-3 px-4 font-bold">Timestamp</th>
                 <th className="py-3 px-4 font-bold">Action</th>
                 <th className="py-3 px-4 font-bold">Actor</th>
@@ -65,7 +66,7 @@ export default function AdminAuditLogsPage() {
                   <td className="py-3 px-4 font-medium text-slate-900">
                     {log.actor ? `${log.actor.first_name} ${log.actor.last_name}` : 'System'}
                     {log.actor && (
-                      <span className="text-[10px] text-slate-400 block font-normal">
+                      <span className="text-[10px] text-slate-500 block font-normal">
                         {log.actor.role}
                       </span>
                     )}

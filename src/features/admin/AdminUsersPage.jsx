@@ -1,3 +1,5 @@
+import { Modal } from '../../components/ui/dialog';
+import { notify } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
@@ -72,7 +74,7 @@ export default function AdminUsersPage() {
       });
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -81,7 +83,7 @@ export default function AdminUsersPage() {
       await adminApi.toggleUserStatus(userId);
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -111,7 +113,7 @@ export default function AdminUsersPage() {
       setShowTeamModal(false);
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     } finally {
       setSavingTeam(false);
     }
@@ -142,7 +144,7 @@ export default function AdminUsersPage() {
       setSavingPassword(true);
       await adminApi.resetUserPassword(passwordTarget.id, newPassword);
       setShowPasswordModal(false);
-      alert(`Password reset for ${passwordTarget.email}`);
+      notify.success(`Password reset for ${passwordTarget.email}`);
     } catch (err) {
       setPasswordError(err.message);
     } finally {
@@ -174,7 +176,7 @@ export default function AdminUsersPage() {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2 self-start"
+          className="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2 self-start"
         >
           <Plus className="w-4 h-4" />
           Create User
@@ -183,7 +185,7 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center">
-        <Search className="w-4 h-4 text-slate-400 mr-2" />
+        <Search className="w-4 h-4 text-slate-500 mr-2" />
         <input
           type="text"
           value={search}
@@ -198,7 +200,7 @@ export default function AdminUsersPage() {
         <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider bg-slate-50">
+            <tr className="border-b border-slate-100 text-slate-500 uppercase tracking-wider bg-slate-50">
               <th className="py-3 px-4 font-bold">User</th>
               <th className="py-3 px-4 font-bold">Role</th>
               <th className="py-3 px-4 font-bold">Department</th>
@@ -211,15 +213,15 @@ export default function AdminUsersPage() {
               <tr key={user.id} className="hover:bg-slate-50 transition">
                 <td className="py-3 px-4 font-semibold text-slate-900">
                   {user.first_name} {user.last_name}
-                  <span className="text-[10px] text-slate-400 block font-normal">{user.email}</span>
+                  <span className="text-[10px] text-slate-500 block font-normal">{user.email}</span>
                 </td>
                 <td className="py-3 px-4">
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                       user.role === 'ADMIN'
-                        ? 'bg-purple-100 text-purple-700 border-purple-200'
+                        ? 'bg-brand-light text-brand-dark border-brand-light'
                         : user.role === 'MANAGER'
-                        ? 'bg-blue-100 text-blue-700 border-blue-200'
+                        ? 'bg-brand-light text-brand-dark border-brand-light'
                         : 'bg-emerald-100 text-emerald-700 border-emerald-200'
                     }`}
                   >
@@ -246,7 +248,7 @@ export default function AdminUsersPage() {
                   {user.role === 'MANAGER' && (
                     <button
                       onClick={() => openTeamMapping(user)}
-                      className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 font-semibold"
+                      className="px-2.5 py-1 bg-brand-light text-brand rounded-lg hover:bg-brand-light font-semibold"
                     >
                       Configure Scope
                     </button>
@@ -277,7 +279,7 @@ export default function AdminUsersPage() {
 
       {/* Create User Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(showCreateModal)} onOpenChange={(o) => { if (!o) setShowCreateModal(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
             <h2 className="text-base font-bold text-slate-900 mb-4">Create New User</h2>
             <form onSubmit={handleCreateUser} className="space-y-3">
@@ -378,19 +380,19 @@ export default function AdminUsersPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg"
+                  className="px-5 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-semibold rounded-lg"
                 >
                   Save User
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Reset Password Modal */}
       {showPasswordModal && passwordTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(showPasswordModal && passwordTarget)} onOpenChange={(o) => { if (!o) setShowPasswordModal(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
             <h2 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
               <KeyRound className="w-4 h-4 text-amber-600" />
@@ -453,12 +455,12 @@ export default function AdminUsersPage() {
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Team Mapping Modal */}
       {showTeamModal && selectedManager && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(showTeamModal && selectedManager)} onOpenChange={(o) => { if (!o) setShowTeamModal(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 border border-slate-100">
             <h2 className="text-base font-bold text-slate-900 mb-1">
               Configure Manager Scope: {selectedManager.first_name} {selectedManager.last_name}
@@ -477,7 +479,7 @@ export default function AdminUsersPage() {
                     onClick={() => toggleTeamEmployee(emp.id)}
                     className={`p-2.5 rounded-lg border text-xs cursor-pointer flex items-center justify-between transition ${
                       isSelected
-                        ? 'bg-blue-50 border-blue-300 text-blue-900 font-semibold'
+                        ? 'bg-brand-light border-brand text-brand-dark font-semibold'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                     }`}
                   >
@@ -485,9 +487,9 @@ export default function AdminUsersPage() {
                       <span>
                         {emp.first_name} {emp.last_name}
                       </span>
-                      <span className="text-[10px] text-slate-400 block">{emp.email}</span>
+                      <span className="text-[10px] text-slate-500 block">{emp.email}</span>
                     </div>
-                    {isSelected && <CheckCircle className="w-4 h-4 text-blue-600" />}
+                    {isSelected && <CheckCircle className="w-4 h-4 text-brand" />}
                   </div>
                 );
               })}
@@ -505,13 +507,13 @@ export default function AdminUsersPage() {
                 type="button"
                 disabled={savingTeam}
                 onClick={handleSaveTeam}
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg"
+                className="px-5 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-semibold rounded-lg"
               >
                 {savingTeam ? 'Saving...' : 'Save Scope'}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

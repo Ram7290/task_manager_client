@@ -16,6 +16,7 @@ import {
   Menu,
   Tags,
   ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export default function AppLayout() {
@@ -24,11 +25,13 @@ export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef(null);
   const [moreBelow, setMoreBelow] = useState(false);
+  const [moreAbove, setMoreAbove] = useState(false);
 
   const updateMoreBelow = () => {
     const el = navRef.current;
     if (!el) return;
     setMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 8);
+    setMoreAbove(el.scrollTop > 8);
   };
 
   useEffect(() => {
@@ -45,16 +48,16 @@ export default function AppLayout() {
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case 'ADMIN':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-brand-light text-brand-dark border-brand-light';
       case 'MANAGER':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-brand-light text-brand-dark border-brand-light';
       default:
         return 'bg-emerald-100 text-emerald-700 border-emerald-200';
     }
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="fixed inset-0 flex bg-slate-50 overflow-hidden">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -65,7 +68,7 @@ export default function AppLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 transform transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-brand-navy text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 transform transition-transform duration-200 lg:static lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -115,7 +118,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -128,7 +131,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -141,7 +144,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -163,7 +166,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -176,7 +179,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -189,7 +192,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -202,7 +205,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -224,7 +227,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -237,7 +240,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -250,7 +253,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -264,7 +267,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -277,7 +280,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -290,7 +293,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -303,7 +306,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -316,7 +319,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -329,7 +332,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      ? 'bg-brand text-white font-semibold shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`
                 }
@@ -340,6 +343,11 @@ export default function AppLayout() {
             </>
           )}
         </nav>
+          {moreAbove && (
+            <div className="pointer-events-none absolute top-0 left-0 right-0 h-14 flex items-start justify-center pt-1 bg-gradient-to-b from-slate-900 via-slate-900/80 to-transparent text-slate-400">
+              <ChevronUp className="w-4 h-4 animate-bounce" />
+            </div>
+          )}
           {moreBelow && (
             <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-14 flex items-end justify-center pb-1 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent text-slate-400">
               <ChevronDown className="w-4 h-4 animate-bounce" />
@@ -354,7 +362,7 @@ export default function AppLayout() {
             className={({ isActive }) =>
               `w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
                 isActive
-                  ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                  ? 'bg-brand text-white font-semibold shadow-sm'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`
             }
@@ -375,7 +383,7 @@ export default function AppLayout() {
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Mobile top bar */}
-        <div className="lg:hidden h-14 flex items-center gap-3 px-4 bg-slate-900 text-white flex-shrink-0">
+        <div className="lg:hidden h-14 flex items-center gap-3 px-4 bg-brand-navy text-white flex-shrink-0">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}

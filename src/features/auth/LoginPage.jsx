@@ -34,14 +34,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-slate-800 to-brand-navy flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center rounded-2xl bg-white p-3 shadow-xl shadow-blue-500/20 mb-4">
+          <div className="inline-flex items-center justify-center rounded-2xl bg-white p-3 shadow-xl shadow-brand/20 mb-4">
             <img src="/taiqon-logo.png" alt="Taiqon Technologies" className="h-16 w-auto" />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Taiqon Technologies Pvt Ltd</h1>
+          <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-brand-accent mt-1">
+            Plan · Track · Deliver
+          </p>
           <p className="text-slate-400 text-sm mt-1">
             Worklog Pro · Employee Task Assignment & Daily Worklog System
           </p>
@@ -71,7 +74,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
                 />
               </div>
             </div>
@@ -88,7 +91,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
                 />
                 <button
                   type="button"
@@ -105,7 +108,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className="w-full mt-2 py-2.5 px-4 bg-brand hover:bg-brand-dark text-white rounded-lg text-sm font-semibold shadow-md shadow-brand/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
             >
               {loading ? 'Authenticating...' : 'Sign In'}
               <ArrowRight className="w-4 h-4" />

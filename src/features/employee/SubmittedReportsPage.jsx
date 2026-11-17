@@ -1,3 +1,4 @@
+import { LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { worklogApi } from '../../lib/api';
 import { formatMinutes } from '../../lib/utils';
@@ -37,7 +38,7 @@ export default function SubmittedReportsPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-slate-400">Loading report history...</div>
+        <LoadingSkeleton />
       ) : reports.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
@@ -61,12 +62,12 @@ export default function SubmittedReportsPage() {
                   className="p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                    <div className="p-2 rounded-lg bg-brand-light text-brand">
                       <Calendar className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900 text-sm">{report.report_date}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-500 mt-0.5">
                         {report.worklogs?.length || 0} entries logged
                       </p>
                     </div>
@@ -74,7 +75,7 @@ export default function SubmittedReportsPage() {
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">
                         Logged
                       </span>
                       <span className="text-sm font-bold text-slate-800">
@@ -93,9 +94,9 @@ export default function SubmittedReportsPage() {
                     </span>
 
                     {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                      <ChevronDown className="w-4 h-4 text-slate-500" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ChevronRight className="w-4 h-4 text-slate-500" />
                     )}
                   </div>
                 </div>
@@ -103,13 +104,13 @@ export default function SubmittedReportsPage() {
                 {isExpanded && (
                   <div className="px-5 pb-5 pt-2 border-t border-slate-100 bg-slate-50/60 divide-y divide-slate-100">
                     {report.worklogs?.length === 0 ? (
-                      <p className="text-xs text-slate-400 py-3 italic">No entries in this report.</p>
+                      <p className="text-xs text-slate-500 py-3 italic">No entries in this report.</p>
                     ) : (
                       report.worklogs.map((w) => (
                         <div key={w.id} className="py-3 flex items-start justify-between gap-4">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-light text-brand-dark">
                                 {w.category?.name}
                               </span>
                               {w.task && (

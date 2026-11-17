@@ -1,3 +1,4 @@
+import { LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
@@ -38,7 +39,7 @@ export default function AdminDashboardPage() {
   }, [trackDate]);
 
   if (loading) {
-    return <div className="py-12 text-center text-slate-400">Loading system overview...</div>;
+    return <LoadingSkeleton />;
   }
 
   const submittedPct =
@@ -59,7 +60,7 @@ export default function AdminDashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Submission tracking date picker */}
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
-            <CalendarDays className="w-4 h-4 text-slate-400" />
+            <CalendarDays className="w-4 h-4 text-slate-500" />
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               Track Date
             </label>
@@ -74,7 +75,7 @@ export default function AdminDashboardPage() {
 
           <Link
             to="/admin/tasks"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
+            className="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             Create & Assign Task
@@ -91,38 +92,38 @@ export default function AdminDashboardPage() {
       {/* KPI Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Active Employees</span>
             <Users className="w-4 h-4 text-emerald-600" />
           </div>
           <p className="text-2xl font-black text-slate-900">{stats?.total_employees || 0}</p>
-          <span className="text-[11px] text-slate-400 mt-1 block">
+          <span className="text-[11px] text-slate-500 mt-1 block">
             {stats?.total_managers || 0} Managers
           </span>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Active Projects</span>
-            <FolderKanban className="w-4 h-4 text-blue-600" />
+            <FolderKanban className="w-4 h-4 text-brand" />
           </div>
-          <p className="text-2xl font-black text-blue-600">{stats?.active_projects || 0}</p>
-          <span className="text-[11px] text-slate-400 mt-1 block">Company initiatives</span>
+          <p className="text-2xl font-black text-brand">{stats?.active_projects || 0}</p>
+          <span className="text-[11px] text-slate-500 mt-1 block">Company initiatives</span>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Total Tasks</span>
-            <CheckSquare className="w-4 h-4 text-purple-600" />
+            <CheckSquare className="w-4 h-4 text-brand" />
           </div>
-          <p className="text-2xl font-black text-purple-600">{stats?.total_tasks || 0}</p>
-          <span className="text-[11px] text-slate-400 mt-1 block">
+          <p className="text-2xl font-black text-brand">{stats?.total_tasks || 0}</p>
+          <span className="text-[11px] text-slate-500 mt-1 block">
             {stats?.task_status_counts?.IN_PROGRESS || 0} In Progress
           </span>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">
               Submissions · {stats?.submission_date}
             </span>
@@ -130,7 +131,7 @@ export default function AdminDashboardPage() {
           </div>
           <p className="text-2xl font-black text-slate-900">
             {stats?.submitted_count || 0}
-            <span className="text-xs text-slate-400 font-normal"> / {stats?.total_employees}</span>
+            <span className="text-xs text-slate-500 font-normal"> / {stats?.total_employees}</span>
           </p>
           <div className="mt-2 flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -174,17 +175,17 @@ export default function AdminDashboardPage() {
                       <p className="text-xs font-semibold text-slate-900">
                         {emp.first_name} {emp.last_name}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-slate-500">
                         {emp.department?.name || 'Unassigned'}
                         {emp.role === 'MANAGER' && (
-                          <span className="ml-1 text-blue-500 font-bold">· Manager</span>
+                          <span className="ml-1 text-brand font-bold">· Manager</span>
                         )}
                       </p>
                     </div>
                   </div>
                   <Link
                     to={`/admin/users/${emp.id}/overview`}
-                    className="text-[10px] font-semibold text-blue-600 hover:text-blue-800"
+                    className="text-[10px] font-semibold text-brand hover:text-brand-dark"
                   >
                     View profile →
                   </Link>
@@ -227,7 +228,7 @@ export default function AdminDashboardPage() {
                       <p className="text-xs font-semibold text-slate-900">
                         {emp.first_name} {emp.last_name}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-slate-500">
                         {emp.department?.name || 'Unassigned'} ·{' '}
                         {emp.submitted_at
                           ? new Date(emp.submitted_at).toLocaleTimeString([], {
@@ -236,7 +237,7 @@ export default function AdminDashboardPage() {
                             })
                           : '—'}
                         {emp.role === 'MANAGER' && (
-                          <span className="ml-1 text-blue-500 font-bold">· Manager</span>
+                          <span className="ml-1 text-brand font-bold">· Manager</span>
                         )}
                       </p>
                     </div>
@@ -247,7 +248,7 @@ export default function AdminDashboardPage() {
                     </span>
                     <Link
                       to={`/admin/users/${emp.id}/overview`}
-                      className="text-[10px] font-semibold text-blue-600 hover:text-blue-800"
+                      className="text-[10px] font-semibold text-brand hover:text-brand-dark"
                     >
                       View →
                     </Link>
@@ -271,7 +272,7 @@ export default function AdminDashboardPage() {
         {/* Project Hours */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <FolderKanban className="w-4 h-4 text-blue-600" /> Logged Hours by Project
+            <FolderKanban className="w-4 h-4 text-brand" /> Logged Hours by Project
           </h3>
           <div className="space-y-3">
             {stats?.project_hours && Object.keys(stats.project_hours).length > 0 ? (
@@ -281,13 +282,13 @@ export default function AdminDashboardPage() {
                   className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between"
                 >
                   <span className="text-xs font-semibold text-slate-800">{proj}</span>
-                  <span className="text-xs font-black text-blue-600">
+                  <span className="text-xs font-black text-brand">
                     {Math.round(hours * 10) / 10} hrs
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-xs text-slate-400 italic">No submitted project hours yet.</p>
+              <p className="text-xs text-slate-500 italic">No submitted project hours yet.</p>
             )}
           </div>
         </div>
@@ -295,7 +296,7 @@ export default function AdminDashboardPage() {
         {/* Department Hours */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-purple-600" /> Logged Hours by Department
+            <Building2 className="w-4 h-4 text-brand" /> Logged Hours by Department
           </h3>
           <div className="space-y-3">
             {stats?.department_hours && Object.keys(stats.department_hours).length > 0 ? (
@@ -305,32 +306,32 @@ export default function AdminDashboardPage() {
                   className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between"
                 >
                   <span className="text-xs font-semibold text-slate-800">{dept}</span>
-                  <span className="text-xs font-black text-purple-600">
+                  <span className="text-xs font-black text-brand">
                     {Math.round(hours * 10) / 10} hrs
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-xs text-slate-400 italic">No submitted department hours yet.</p>
+              <p className="text-xs text-slate-500 italic">No submitted department hours yet.</p>
             )}
           </div>
         </div>
       </div>
 
       {/* Link to full timeline */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-gradient-to-r from-brand to-brand rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div className="text-white">
           <h3 className="text-base font-bold flex items-center gap-2">
             <CalendarDays className="w-5 h-5" /> Submission Timeline
           </h3>
-          <p className="text-xs text-blue-100 mt-1">
+          <p className="text-xs text-brand-light mt-1">
             Track submissions across multiple days in a grid view — see exactly who submitted and
             who is outstanding, day by day.
           </p>
         </div>
         <Link
           to="/admin/submission-timeline"
-          className="px-5 py-2.5 bg-white text-blue-700 rounded-xl text-xs font-bold shadow-sm hover:bg-blue-50 transition whitespace-nowrap"
+          className="px-5 py-2.5 bg-white text-brand-dark rounded-xl text-xs font-bold shadow-sm hover:bg-brand-light transition whitespace-nowrap"
         >
           Open Submission Timeline →
         </Link>

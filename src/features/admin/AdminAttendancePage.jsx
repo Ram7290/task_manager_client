@@ -1,3 +1,5 @@
+import { Modal } from '../../components/ui/dialog';
+import { notify, confirmDialog, LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect, useCallback } from 'react';
 import { attendanceApi, adminApi } from '../../lib/api';
 import { localDateStr } from '../../lib/utils';
@@ -31,9 +33,9 @@ const sundaysInMonth = (yearMonth) => {
 
 const TYPE_LABELS = {
   SUNDAY: { label: 'Sunday', color: 'bg-slate-100 text-slate-600 border-slate-200' },
-  SATURDAY: { label: 'Saturday', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  SATURDAY: { label: 'Saturday', color: 'bg-brand-light text-brand-dark border-brand-light' },
   PUBLIC_HOLIDAY: { label: 'Holiday', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-  OTHER: { label: 'Other', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+  OTHER: { label: 'Other', color: 'bg-brand-light text-brand-dark border-brand-light' },
 };
 
 const EX_TYPE_LABELS = {
@@ -125,12 +127,12 @@ export default function AdminAttendancePage() {
       setNewOffType('OTHER');
       await loadOffDays();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
   const handleBulkSundays = async () => {
-    if (!confirm(`Mark all Sundays in ${offMonth} as off days?`)) return;
+    if (!(await confirmDialog(`Mark all Sundays in ${offMonth} as off days?`))) return;
     try {
       setBulkAdding(true);
       const entries = sundaysInMonth(offMonth).map(date => ({
@@ -139,22 +141,22 @@ export default function AdminAttendancePage() {
         reason: 'Weekly off',
       }));
       const res = await attendanceApi.bulkAddOffDays(entries);
-      alert(`Added ${res.data.added} Sunday(s). ${res.data.skipped} already existed.`);
+      notify.success(`Added ${res.data.added} Sunday(s). ${res.data.skipped} already existed.`);
       await loadOffDays();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     } finally {
       setBulkAdding(false);
     }
   };
 
   const handleRemoveOffDay = async (id) => {
-    if (!confirm('Remove this off day?')) return;
+    if (!(await confirmDialog('Remove this off day?'))) return;
     try {
       await attendanceApi.removeOffDay(id);
       await loadOffDays();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -162,7 +164,7 @@ export default function AdminAttendancePage() {
 
   const handleMarkAbsence = async (e) => {
     e.preventDefault();
-    if (!exEmployee) { alert('Select an employee.'); return; }
+    if (!exEmployee) { notify.error('Select an employee.'); return; }
     try {
       await attendanceApi.markException({
         employee_id: exEmployee,
@@ -177,17 +179,17 @@ export default function AdminAttendancePage() {
       setExReason('');
       await loadExceptions();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
   const handleRemoveException = async (id) => {
-    if (!confirm('Remove this attendance record?')) return;
+    if (!(await confirmDialog('Remove this attendance record?'))) return;
     try {
       await attendanceApi.removeException(id);
       await loadExceptions();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -196,7 +198,7 @@ export default function AdminAttendancePage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <CalendarDays className="w-6 h-6 text-blue-600" />
+          <CalendarDays className="w-6 h-6 text-brand" />
           Attendance & Working Days
         </h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -206,8 +208,8 @@ export default function AdminAttendancePage() {
       </div>
 
       {/* Info banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-800 flex gap-3">
-        <CalendarDays className="w-4 h-4 flex-shrink-0 mt-0.5 text-blue-600" />
+      <div className="bg-brand-light border border-brand-light rounded-xl p-4 text-xs text-brand-dark flex gap-3">
+        <CalendarDays className="w-4 h-4 flex-shrink-0 mt-0.5 text-brand" />
         <div>
           <strong>How this works:</strong> Employees can still submit a worklog on any day,
           including off days. These settings only affect the timeline view — a cell on an off day
@@ -227,7 +229,7 @@ export default function AdminAttendancePage() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-1.5 px-5 py-3 text-xs font-semibold border-b-2 transition ${
               activeTab === tab.id
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-brand text-brand'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -248,11 +250,11 @@ export default function AdminAttendancePage() {
                 type="month"
                 value={offMonth}
                 onChange={(e) => setOffMonth(e.target.value || currentYearMonth())}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
               />
               <button
                 onClick={loadOffDays}
-                className="p-1.5 text-slate-500 hover:text-blue-600 transition"
+                className="p-1.5 text-slate-500 hover:text-brand transition"
                 title="Refresh"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -269,7 +271,7 @@ export default function AdminAttendancePage() {
               </button>
               <button
                 onClick={() => setShowAddOffDay(true)}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Off Day
@@ -278,12 +280,12 @@ export default function AdminAttendancePage() {
           </div>
 
           {offLoading ? (
-            <div className="py-10 text-center text-slate-400">Loading off days...</div>
+            <LoadingSkeleton />
           ) : offDays.length === 0 ? (
             <div className="bg-white rounded-xl border border-dashed border-slate-200 p-10 text-center">
               <CalendarDays className="w-8 h-8 text-slate-300 mx-auto mb-2" />
               <p className="text-sm text-slate-500">No off days defined for {offMonth}.</p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Use "Mark All Sundays" for a quick start, or add individual dates.
               </p>
             </div>
@@ -316,13 +318,13 @@ export default function AdminAttendancePage() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-slate-500">{od.reason || '—'}</td>
-                        <td className="py-3 px-4 text-slate-400">
+                        <td className="py-3 px-4 text-slate-500">
                           {od.creator ? `${od.creator.first_name} ${od.creator.last_name}` : '—'}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <button
                             onClick={() => handleRemoveOffDay(od.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 transition"
+                            className="p-1.5 text-slate-500 hover:text-red-600 transition"
                             title="Remove"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -338,11 +340,11 @@ export default function AdminAttendancePage() {
 
           {/* Add Off Day Modal */}
           {showAddOffDay && (
-            <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <Modal open={!!(showAddOffDay)} onOpenChange={(o) => { if (!o) setShowAddOffDay(false); }}>
               <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-bold text-slate-900">Add Company Off Day</h2>
-                  <button onClick={() => setShowAddOffDay(false)} className="text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setShowAddOffDay(false)} className="text-slate-500 hover:text-slate-600">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -354,7 +356,7 @@ export default function AdminAttendancePage() {
                       required
                       value={newOffDate}
                       onChange={(e) => setNewOffDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     />
                   </div>
                   <div>
@@ -362,7 +364,7 @@ export default function AdminAttendancePage() {
                     <select
                       value={newOffType}
                       onChange={(e) => setNewOffType(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     >
                       <option value="SUNDAY">Sunday (Weekly Off)</option>
                       <option value="SATURDAY">Saturday (Weekly Off)</option>
@@ -372,14 +374,14 @@ export default function AdminAttendancePage() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
-                      Reason <span className="text-slate-400 normal-case font-normal">(optional)</span>
+                      Reason <span className="text-slate-500 normal-case font-normal">(optional)</span>
                     </label>
                     <input
                       type="text"
                       value={newOffReason}
                       onChange={(e) => setNewOffReason(e.target.value)}
                       placeholder="e.g. National holiday, Eid, etc."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
@@ -392,14 +394,14 @@ export default function AdminAttendancePage() {
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                      className="px-5 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-semibold rounded-lg shadow-sm"
                     >
                       Save Off Day
                     </button>
                   </div>
                 </form>
               </div>
-            </div>
+            </Modal>
           )}
         </div>
       )}
@@ -414,7 +416,7 @@ export default function AdminAttendancePage() {
               <select
                 value={exFilterEmployee}
                 onChange={(e) => setExFilterEmployee(e.target.value)}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">All Employees</option>
                 {employees.map((emp) => (
@@ -426,7 +428,7 @@ export default function AdminAttendancePage() {
             </div>
             <button
               onClick={() => setShowMarkAbsence(true)}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
               Mark Absence / Leave
@@ -434,12 +436,12 @@ export default function AdminAttendancePage() {
           </div>
 
           {exLoading ? (
-            <div className="py-10 text-center text-slate-400">Loading attendance records...</div>
+            <LoadingSkeleton />
           ) : exceptions.length === 0 ? (
             <div className="bg-white rounded-xl border border-dashed border-slate-200 p-10 text-center">
               <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
               <p className="text-sm text-slate-500">No attendance exceptions recorded.</p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Use "Mark Absence / Leave" to record when an employee was absent.
               </p>
             </div>
@@ -465,7 +467,7 @@ export default function AdminAttendancePage() {
                           <p className="font-semibold text-slate-900">
                             {ex.employee?.first_name} {ex.employee?.last_name}
                           </p>
-                          <p className="text-[10px] text-slate-400">{ex.employee?.department?.name || '—'}</p>
+                          <p className="text-[10px] text-slate-500">{ex.employee?.department?.name || '—'}</p>
                         </td>
                         <td className="py-3 px-4 font-semibold text-slate-900">{ex.date}</td>
                         <td className="py-3 px-4">
@@ -474,13 +476,13 @@ export default function AdminAttendancePage() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-slate-500">{ex.reason || '—'}</td>
-                        <td className="py-3 px-4 text-slate-400">
+                        <td className="py-3 px-4 text-slate-500">
                           {ex.marker ? `${ex.marker.first_name} ${ex.marker.last_name}` : '—'}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <button
                             onClick={() => handleRemoveException(ex.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 transition"
+                            className="p-1.5 text-slate-500 hover:text-red-600 transition"
                             title="Remove"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -496,11 +498,11 @@ export default function AdminAttendancePage() {
 
           {/* Mark Absence Modal */}
           {showMarkAbsence && (
-            <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <Modal open={!!(showMarkAbsence)} onOpenChange={(o) => { if (!o) setShowMarkAbsence(false); }}>
               <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-bold text-slate-900">Mark Absence / Leave</h2>
-                  <button onClick={() => setShowMarkAbsence(false)} className="text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setShowMarkAbsence(false)} className="text-slate-500 hover:text-slate-600">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -511,7 +513,7 @@ export default function AdminAttendancePage() {
                       required
                       value={exEmployee}
                       onChange={(e) => setExEmployee(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     >
                       <option value="">-- Select employee --</option>
                       {employees.map((emp) => (
@@ -528,7 +530,7 @@ export default function AdminAttendancePage() {
                       required
                       value={exDate}
                       onChange={(e) => setExDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     />
                   </div>
                   <div>
@@ -536,7 +538,7 @@ export default function AdminAttendancePage() {
                     <select
                       value={exType}
                       onChange={(e) => setExType(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     >
                       <option value="ABSENT">Absent (no notice)</option>
                       <option value="LEAVE">Leave (approved)</option>
@@ -545,14 +547,14 @@ export default function AdminAttendancePage() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
-                      Reason <span className="text-slate-400 normal-case font-normal">(optional)</span>
+                      Reason <span className="text-slate-500 normal-case font-normal">(optional)</span>
                     </label>
                     <input
                       type="text"
                       value={exReason}
                       onChange={(e) => setExReason(e.target.value)}
                       placeholder="e.g. Sick, Family emergency..."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
@@ -565,14 +567,14 @@ export default function AdminAttendancePage() {
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                      className="px-5 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-semibold rounded-lg shadow-sm"
                     >
                       Save Record
                     </button>
                   </div>
                 </form>
               </div>
-            </div>
+            </Modal>
           )}
         </div>
       )}

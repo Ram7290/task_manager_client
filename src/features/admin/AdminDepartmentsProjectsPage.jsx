@@ -1,3 +1,4 @@
+import { notify } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { adminApi, projectApi } from '../../lib/api';
 import { Building2, FolderKanban, Plus } from 'lucide-react';
@@ -43,7 +44,7 @@ export default function AdminDepartmentsProjectsPage() {
       setNewDeptDesc('');
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -60,7 +61,7 @@ export default function AdminDepartmentsProjectsPage() {
       setNewProjDesc('');
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     }
   };
 
@@ -78,7 +79,7 @@ export default function AdminDepartmentsProjectsPage() {
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-purple-600" /> Create Department
+              <Building2 className="w-4 h-4 text-brand" /> Create Department
             </h2>
             <form onSubmit={handleCreateDept} className="space-y-3">
               <div>
@@ -102,7 +103,7 @@ export default function AdminDepartmentsProjectsPage() {
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                className="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold shadow-sm transition"
               >
                 + Add Department
               </button>
@@ -115,7 +116,7 @@ export default function AdminDepartmentsProjectsPage() {
               {departments.map((d) => (
                 <div key={d.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                   <span className="font-semibold text-slate-900 text-xs block">{d.name}</span>
-                  <span className="text-[11px] text-slate-400 mt-0.5 block">{d.description}</span>
+                  <span className="text-[11px] text-slate-500 mt-0.5 block">{d.description}</span>
                   <span className="text-[10px] text-slate-500 mt-1 block">
                     {d.users?.length || 0} members assigned
                   </span>
@@ -129,7 +130,7 @@ export default function AdminDepartmentsProjectsPage() {
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <FolderKanban className="w-4 h-4 text-blue-600" /> Create Project
+              <FolderKanban className="w-4 h-4 text-brand" /> Create Project
             </h2>
             <form onSubmit={handleCreateProject} className="space-y-3">
               <div>
@@ -165,7 +166,7 @@ export default function AdminDepartmentsProjectsPage() {
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                className="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold shadow-sm transition"
               >
                 + Add Project
               </button>
@@ -179,9 +180,9 @@ export default function AdminDepartmentsProjectsPage() {
                 <div key={p.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                   <div>
                     <span className="font-semibold text-slate-900 text-xs block">{p.name}</span>
-                    <span className="text-[11px] text-slate-400 mt-0.5 block">{p.description}</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5 block">{p.description}</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-light text-brand-dark border border-brand-light">
                     {p.status}
                   </span>
                 </div>

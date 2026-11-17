@@ -1,3 +1,4 @@
+import { LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { adminApi } from '../../lib/api';
@@ -16,7 +17,7 @@ import {
 
 const STATUS_COLORS = {
   TODO: 'bg-slate-100 text-slate-700',
-  IN_PROGRESS: 'bg-blue-100 text-blue-700',
+  IN_PROGRESS: 'bg-brand-light text-brand-dark',
   ON_HOLD: 'bg-amber-100 text-amber-700',
   COMPLETED: 'bg-emerald-100 text-emerald-700',
   CANCELLED: 'bg-red-100 text-red-600',
@@ -45,14 +46,14 @@ export default function AdminUserOverviewPage() {
   }, [userId]);
 
   if (loading) {
-    return <div className="py-12 text-center text-slate-400">Loading user overview...</div>;
+    return <LoadingSkeleton />;
   }
 
   if (!data) {
     return (
       <div className="py-12 text-center text-slate-500">
         User not found.{' '}
-        <Link to="/admin/users" className="text-blue-600 hover:underline">
+        <Link to="/admin/users" className="text-brand hover:underline">
           Back to Users
         </Link>
       </div>
@@ -74,7 +75,7 @@ export default function AdminUserOverviewPage() {
       {/* Profile header */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-black text-xl">
+          <div className="w-14 h-14 rounded-2xl bg-brand-light text-brand-dark flex items-center justify-center font-black text-xl">
             {user.first_name?.[0]}
             {user.last_name?.[0]}
           </div>
@@ -86,7 +87,7 @@ export default function AdminUserOverviewPage() {
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                   user.role === 'MANAGER'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                    ? 'bg-brand-light text-brand-dark border-brand-light'
                     : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 }`}
               >
@@ -98,7 +99,7 @@ export default function AdminUserOverviewPage() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">{user.email}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{user.email}</p>
             <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
               <Building2 className="w-3 h-3" />
               {user.department?.name || 'No department assigned'}
@@ -115,7 +116,7 @@ export default function AdminUserOverviewPage() {
           </Link>
           <Link
             to="/admin/submission-timeline"
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition"
+            className="px-3 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-sm transition"
           >
             View Timeline
           </Link>
@@ -129,15 +130,15 @@ export default function AdminUserOverviewPage() {
             label: 'Reports Submitted',
             value: summary.submitted_reports,
             sub: `${summary.draft_reports} draft`,
-            icon: <FileText className="w-4 h-4 text-blue-600" />,
-            color: 'text-blue-600',
+            icon: <FileText className="w-4 h-4 text-brand" />,
+            color: 'text-brand',
           },
           {
             label: 'Hours Logged',
             value: formatMinutes(summary.total_minutes_logged),
             sub: 'across all submissions',
-            icon: <Clock className="w-4 h-4 text-purple-600" />,
-            color: 'text-purple-600',
+            icon: <Clock className="w-4 h-4 text-brand" />,
+            color: 'text-brand',
           },
           {
             label: 'Tasks Assigned',
@@ -160,12 +161,12 @@ export default function AdminUserOverviewPage() {
           },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-2 text-slate-400">
+            <div className="flex items-center justify-between mb-2 text-slate-500">
               <span className="text-[10px] font-bold uppercase tracking-wider">{s.label}</span>
               {s.icon}
             </div>
             <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
-            <span className="text-[11px] text-slate-400 mt-1 block">{s.sub}</span>
+            <span className="text-[11px] text-slate-500 mt-1 block">{s.sub}</span>
           </div>
         ))}
       </div>
@@ -174,7 +175,7 @@ export default function AdminUserOverviewPage() {
       {summary.total_tasks > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <CheckSquare className="w-4 h-4 text-purple-600" /> Task Status Breakdown
+            <CheckSquare className="w-4 h-4 text-brand" /> Task Status Breakdown
           </h3>
           <div className="flex flex-wrap gap-2">
             {Object.entries(summary.tasks_by_status || {}).map(([status, count]) => (
@@ -200,7 +201,7 @@ export default function AdminUserOverviewPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-1.5 px-5 py-3 text-xs font-semibold border-b-2 transition ${
               activeTab === tab.id
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-brand text-brand'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -214,7 +215,7 @@ export default function AdminUserOverviewPage() {
       {activeTab === 'worklogs' && (
         <div className="space-y-3">
           {reports.length === 0 ? (
-            <div className="bg-white rounded-xl border border-dashed border-slate-200 p-10 text-center text-slate-400">
+            <div className="bg-white rounded-xl border border-dashed border-slate-200 p-10 text-center text-slate-500">
               <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
               <p className="text-sm">No reports filed yet.</p>
             </div>
@@ -263,13 +264,13 @@ export default function AdminUserOverviewPage() {
                       <span className="text-xs font-bold text-slate-700">
                         {formatMinutes(totalMins)}
                       </span>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-slate-500">
                         {report.worklogs?.length || 0} entries
                       </span>
                       {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                        <ChevronDown className="w-4 h-4 text-slate-500" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-slate-500" />
                       )}
                     </div>
                   </div>
@@ -277,7 +278,7 @@ export default function AdminUserOverviewPage() {
                   {isExpanded && (
                     <div className="border-t border-slate-100 bg-slate-50/60 px-5 pb-4 pt-3 divide-y divide-slate-100">
                       {(report.worklogs || []).length === 0 ? (
-                        <p className="text-xs text-slate-400 py-2 italic">No entries yet.</p>
+                        <p className="text-xs text-slate-500 py-2 italic">No entries yet.</p>
                       ) : (
                         (report.worklogs || []).map((w) => (
                           <div
@@ -286,7 +287,7 @@ export default function AdminUserOverviewPage() {
                           >
                             <div className="space-y-1">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-light text-brand-dark">
                                   {w.category?.name}
                                 </span>
                                 {w.task && (
@@ -323,7 +324,7 @@ export default function AdminUserOverviewPage() {
       {activeTab === 'tasks' && (
         <div className="space-y-3">
           {task_assignments.length === 0 ? (
-            <div className="bg-white rounded-xl border border-dashed border-slate-200 p-10 text-center text-slate-400">
+            <div className="bg-white rounded-xl border border-dashed border-slate-200 p-10 text-center text-slate-500">
               <CheckSquare className="w-8 h-8 mx-auto mb-2 opacity-40" />
               <p className="text-sm">No task assignments found.</p>
             </div>
@@ -358,7 +359,7 @@ export default function AdminUserOverviewPage() {
                           {assignment.task.priority}
                         </span>
                       )}
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-slate-500">
                         Assigned by {assignment.task?.creator?.first_name}{' '}
                         {assignment.task?.creator?.last_name}
                       </span>
@@ -381,19 +382,19 @@ export default function AdminUserOverviewPage() {
       {user.role === 'MANAGER' && (user.managedEmployees?.length ?? 0) > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <User className="w-4 h-4 text-blue-600" /> Direct Reports ({user.managedEmployees.length})
+            <User className="w-4 h-4 text-brand" /> Direct Reports ({user.managedEmployees.length})
           </h3>
           <div className="flex flex-wrap gap-2">
             {user.managedEmployees.map((emp) => (
               <Link
                 key={emp.id}
                 to={`/admin/users/${emp.id}/overview`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-blue-50 hover:border-blue-300 transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-brand-light hover:border-brand transition"
               >
                 <span className="text-xs font-semibold text-slate-800">
                   {emp.first_name} {emp.last_name}
                 </span>
-                <ChevronRight className="w-3 h-3 text-slate-400" />
+                <ChevronRight className="w-3 h-3 text-slate-500" />
               </Link>
             ))}
           </div>
@@ -403,19 +404,19 @@ export default function AdminUserOverviewPage() {
       {user.role === 'EMPLOYEE' && (user.reportingManagers?.length ?? 0) > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
           <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <User className="w-4 h-4 text-purple-600" /> Reporting Managers
+            <User className="w-4 h-4 text-brand" /> Reporting Managers
           </h3>
           <div className="flex flex-wrap gap-2">
             {user.reportingManagers.map((mgr) => (
               <Link
                 key={mgr.id}
                 to={`/admin/users/${mgr.id}/overview`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-purple-50 hover:border-purple-300 transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-brand-light hover:border-brand transition"
               >
                 <span className="text-xs font-semibold text-slate-800">
                   {mgr.first_name} {mgr.last_name}
                 </span>
-                <ChevronRight className="w-3 h-3 text-slate-400" />
+                <ChevronRight className="w-3 h-3 text-slate-500" />
               </Link>
             ))}
           </div>

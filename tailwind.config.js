@@ -7,6 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        brand: {
+          DEFAULT: "#1F6FA8",
+          dark: "#17507E",
+          navy: "#14304F",
+          accent: "#2FA3C4",
+          light: "#E6F1F9",
+        },
         border: "hsl(var(--border, 214.3 31.8% 91.4%))",
         input: "hsl(var(--input, 214.3 31.8% 91.4%))",
         ring: "hsl(var(--ring, 222.2 84% 4.9%))",

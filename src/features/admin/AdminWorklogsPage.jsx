@@ -1,7 +1,9 @@
+import { Modal } from '../../components/ui/dialog';
+import { notify, LoadingSkeleton } from '../../components/ui/feedback';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { adminApi, worklogApi } from '../../lib/api';
-import { formatMinutes } from '../../lib/utils';
+import { formatMinutes, localDateStr } from '../../lib/utils';
 import {
   FileText,
   ShieldAlert,
@@ -10,12 +12,15 @@ import {
   X,
 } from 'lucide-react';
 
-const EMPTY_FILTERS = {
-  employee_id: '',
-  department_id: '',
-  start_date: '',
-  end_date: '',
-  status: 'SUBMITTED',
+const defaultFilters = () => {
+  const today = localDateStr();
+  return {
+    employee_id: '',
+    department_id: '',
+    start_date: today,
+    end_date: today,
+    status: 'SUBMITTED',
+  };
 };
 
 export default function AdminWorklogsPage() {
@@ -27,9 +32,9 @@ export default function AdminWorklogsPage() {
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ ...EMPTY_FILTERS, employee_id: initialEmployeeId });
+  const [filters, setFilters] = useState({ ...defaultFilters(), employee_id: initialEmployeeId });
   const [appliedFilters, setAppliedFilters] = useState({
-    ...EMPTY_FILTERS,
+    ...defaultFilters(),
     employee_id: initialEmployeeId,
   });
 
@@ -93,16 +98,18 @@ export default function AdminWorklogsPage() {
   };
 
   const handleClearFilters = () => {
-    setFilters(EMPTY_FILTERS);
-    setAppliedFilters(EMPTY_FILTERS);
-    loadData(EMPTY_FILTERS);
+    const reset = defaultFilters();
+    setFilters(reset);
+    setAppliedFilters(reset);
+    loadData(reset);
   };
 
+  const today = localDateStr();
   const hasActiveFilters =
     appliedFilters.employee_id ||
     appliedFilters.department_id ||
-    appliedFilters.start_date ||
-    appliedFilters.end_date ||
+    appliedFilters.start_date !== today ||
+    appliedFilters.end_date !== today ||
     appliedFilters.status !== 'SUBMITTED';
 
   const openCorrection = (report) => {
@@ -131,7 +138,7 @@ export default function AdminWorklogsPage() {
   const handleApplyCorrection = async (e) => {
     e.preventDefault();
     if (!correctionReason.trim() || correctionReason.trim().length < 5) {
-      alert('A valid mandatory reason (minimum 5 characters) is required for audited corrections.');
+      notify.error('A valid mandatory reason (minimum 5 characters) is required for audited corrections.');
       return;
     }
 
@@ -144,7 +151,7 @@ export default function AdminWorklogsPage() {
       setShowCorrectionModal(false);
       await loadData();
     } catch (err) {
-      alert(err.message);
+      notify.error(err.message);
     } finally {
       setApplyingCorrection(false);
     }
@@ -174,7 +181,7 @@ export default function AdminWorklogsPage() {
             <select
               value={filters.employee_id}
               onChange={(e) => setFilters({ ...filters, employee_id: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
             >
               <option value="">All Instructors</option>
               {employees.map((emp) => (
@@ -193,7 +200,7 @@ export default function AdminWorklogsPage() {
             <select
               value={filters.department_id}
               onChange={(e) => setFilters({ ...filters, department_id: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
             >
               <option value="">All Departments</option>
               {departments.map((d) => (
@@ -213,7 +220,7 @@ export default function AdminWorklogsPage() {
               type="date"
               value={filters.start_date}
               onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </div>
 
@@ -226,7 +233,7 @@ export default function AdminWorklogsPage() {
               type="date"
               value={filters.end_date}
               onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </div>
 
@@ -238,7 +245,7 @@ export default function AdminWorklogsPage() {
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
             >
               <option value="SUBMITTED">Submitted</option>
               <option value="DRAFT">Draft</option>
@@ -248,7 +255,7 @@ export default function AdminWorklogsPage() {
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-500">
             {loading ? 'Loading…' : `${reports.length} report${reports.length === 1 ? '' : 's'} found`}
             {hasActiveFilters ? ' (filtered)' : ''}
           </span>
@@ -262,7 +269,7 @@ export default function AdminWorklogsPage() {
             </button>
             <button
               onClick={handleApplyFilters}
-              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
+              className="px-4 py-1.5 bg-brand hover:bg-brand-dark text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
             >
               <Filter className="w-3.5 h-3.5" />
               Apply Filters
@@ -272,12 +279,12 @@ export default function AdminWorklogsPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-slate-400">Loading company worklogs...</div>
+        <LoadingSkeleton />
       ) : reports.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-slate-200 p-12 text-center">
           <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">No submitted reports found</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Try adjusting the filters to widen your search.
           </p>
         </div>
@@ -295,7 +302,7 @@ export default function AdminWorklogsPage() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center text-sm">
+                    <div className="w-10 h-10 rounded-xl bg-brand-light text-brand-dark font-bold flex items-center justify-center text-sm">
                       {report.employee?.first_name?.[0]}
                       {report.employee?.last_name?.[0]}
                     </div>
@@ -303,7 +310,7 @@ export default function AdminWorklogsPage() {
                       <h3 className="font-bold text-slate-900 text-sm">
                         {report.employee?.first_name} {report.employee?.last_name}
                       </h3>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-500">
                         {report.employee?.department?.name || 'Engineering'} • Date:{' '}
                         {report.report_date}
                       </p>
@@ -312,7 +319,7 @@ export default function AdminWorklogsPage() {
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
                         Effort
                       </span>
                       <span className="text-sm font-black text-slate-900">
@@ -321,7 +328,7 @@ export default function AdminWorklogsPage() {
                     </div>
 
                     {hasCorrections && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-light text-brand-dark border border-brand-light">
                         CORRECTED ({report.corrections.length})
                       </span>
                     )}
@@ -342,7 +349,7 @@ export default function AdminWorklogsPage() {
                     <div key={w.id} className="py-2.5 flex items-start justify-between gap-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-light text-brand-dark">
                             {w.category?.name}
                           </span>
                           {w.task && (
@@ -369,12 +376,12 @@ export default function AdminWorklogsPage() {
 
                 {/* Correction Audit trail if present */}
                 {hasCorrections && (
-                  <div className="bg-purple-50/60 border border-purple-100 rounded-xl p-3 text-xs text-purple-900 space-y-1">
-                    <span className="font-bold flex items-center gap-1.5 text-purple-800">
+                  <div className="bg-brand-light/60 border border-brand-light rounded-xl p-3 text-xs text-brand-dark space-y-1">
+                    <span className="font-bold flex items-center gap-1.5 text-brand-dark">
                       <ShieldAlert className="w-3.5 h-3.5" /> Audit History:
                     </span>
                     {report.corrections.map((c) => (
-                      <p key={c.id} className="text-[11px] text-purple-700">
+                      <p key={c.id} className="text-[11px] text-brand-dark">
                         • Corrected by {c.corrector?.first_name} {c.corrector?.last_name}: "
                         {c.reason}" on {new Date(c.createdAt).toLocaleDateString()}
                       </p>
@@ -389,7 +396,7 @@ export default function AdminWorklogsPage() {
 
       {/* Controlled Correction Modal */}
       {showCorrectionModal && targetReport && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal open={!!(showCorrectionModal && targetReport)} onOpenChange={(o) => { if (!o) setShowCorrectionModal(false); }}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div>
@@ -401,7 +408,7 @@ export default function AdminWorklogsPage() {
               </div>
               <button
                 onClick={() => setShowCorrectionModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-500 hover:text-slate-600"
               >
                 ✕
               </button>
@@ -423,7 +430,7 @@ export default function AdminWorklogsPage() {
                   value={correctionReason}
                   onChange={(e) => setCorrectionReason(e.target.value)}
                   placeholder="State the formal reason why this submitted report is being modified..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
 
@@ -479,14 +486,14 @@ export default function AdminWorklogsPage() {
                 <button
                   type="submit"
                   disabled={applyingCorrection}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                  className="px-5 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-semibold rounded-lg shadow-sm"
                 >
                   {applyingCorrection ? 'Saving Audit...' : 'Apply Audited Correction'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

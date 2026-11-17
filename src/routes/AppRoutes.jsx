@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { LoadingSkeleton } from '../components/ui/feedback';
 
 import LoginPage from '../features/auth/LoginPage';
 import ChangePasswordPage from '../features/auth/ChangePasswordPage';
@@ -32,7 +33,13 @@ function ProtectedRoute({ allowedRoles, children }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div className="h-screen flex items-center justify-center text-slate-400">Loading...</div>;
+    return (
+      <div className="h-screen flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          <LoadingSkeleton />
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
